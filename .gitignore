@@ -1,0 +1,26 @@
+# Ignore uploaded files
+assets/images/uploads/
+!assets/images/uploads/.gitkeep
+
+# Ignore database config (add later with environment variables)
+config/database.php
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Ignore IDE/editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Ignore temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Ignore vendor (if using Composer later)
+vendor/
