@@ -58,3 +58,12 @@
 �
  License
  This project is created for educational purposes.
+## Database Setup
+
+1. Open phpMyAdmin: `http://localhost/phpmyadmin`
+2. Create a new database named: `alumni_portal`
+3. Import the database:
+   - Click **Import**
+   - Select the file `database/alumni_portal.sql`
+   - Click **Go**
+4. OR run the SQL queries manually (from Phase 2 documentation)
