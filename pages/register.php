@@ -124,195 +124,84 @@ status)
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Register - Alumni Portal</title> 
-    <style> 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        } 
-         
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            min-height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-        } 
-         
-        .register-container { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
-            width: 100%; 
-            max-width: 500px; 
-        } 
-         
-        .register-container h2 { 
-            text-align: center; 
-            color: #333; 
-            margin-bottom: 30px; 
-        } 
-         
-        .form-group { 
-            margin-bottom: 20px; 
-        } 
-         
-        .form-group label { 
-            display: block; 
-            margin-bottom: 5px; 
-            color: #555; 
-            font-weight: 500; 
-        } 
-         
-        .form-group input, 
-        .form-group select { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            font-size: 14px; 
-            transition: border-color 0.3s; 
-        } 
-         
-        .form-group input:focus, 
-        .form-group select:focus { 
-            outline: none; 
-            border-color: #667eea; 
-        } 
-         
-        .error { 
-            background: #fee; 
-            color: #c33; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-            border-left: 4px solid #c33; 
-        } 
-         
-        .error ul { 
-            margin-left: 20px; 
-        } 
-         
-        .success { 
-            background: #efe; 
-            color: #3c3; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-            border-left: 4px solid #3c3; 
-        } 
-         
-        .btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-        } 
-         
-        .btn:hover { 
-            transform: translateY(-2px); 
-        } 
-         
-        .login-link { 
-            text-align: center; 
-            margin-top: 20px; 
-            color: #666; 
-        } 
-         
-        .login-link a { 
-            color: #667eea; 
-            text-decoration: none; 
-            font-weight: 600; 
-        } 
-         
-        .login-link a:hover { 
-            text-decoration: underline; 
-        } 
-    </style> 
+    <link rel="stylesheet" href="../assets/css/style.css">
 </head> 
 <body> 
-    <div class="register-container"> 
-        <h2>Create Account</h2> 
-         
-        <?php if (!empty($errors)): ?> 
-            <div class="error"> 
-                <strong>Please fix the following errors:</strong> 
-                <ul> 
-                    <?php foreach ($errors as $error): ?> 
-                        <li><?php echo $error; ?></li> 
-                    <?php endforeach; ?> 
-                </ul> 
-            </div> 
-        <?php endif; ?> 
-         
-        <?php if (!empty($success)): ?> 
-            <div class="success"><?php echo $success; ?></div> 
-        <?php endif; ?> 
-         
-        <form method="POST" action=""> 
-            <div class="form-group"> 
-                <label for="user_type">I am a:</label> 
-                <select name="user_type" id="user_type" required> 
-                    <option value="">Select...</option> 
-                    <option value="student" <?php echo (isset($_POST['user_type']) && 
-$_POST['user_type'] === 'student') ? 'selected' : ''; ?>>Student</option> 
-                    <option value="alumni" <?php echo (isset($_POST['user_type']) && 
-$_POST['user_type'] === 'alumni') ? 'selected' : ''; ?>>Alumni</option> 
-                </select> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="first_name">First Name:</label> 
-                <input type="text" id="first_name" name="first_name"  
-                       value="<?php echo isset($_POST['first_name']) ? 
-htmlspecialchars($_POST['first_name']) : ''; ?>"  
-                       required> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="last_name">Last Name:</label> 
-                <input type="text" id="last_name" name="last_name"  
-                       value="<?php echo isset($_POST['last_name']) ? 
-htmlspecialchars($_POST['last_name']) : ''; ?>"  
-                       required> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="email">Email:</label> 
-                <input type="email" id="email" name="email"  
-                       value="<?php echo isset($_POST['email']) ? 
-htmlspecialchars($_POST['email']) : ''; ?>"  
-                       required> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="password">Password:</label> 
-                <input type="password" id="password" name="password" required> 
-                <small style="color: #666; font-size: 12px;">At least 8 characters, 1 
-uppercase, 1 lowercase, 1 number</small> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="confirm_password">Confirm Password:</label> 
-                <input type="password" id="confirm_password" 
-name="confirm_password" required> 
-            </div> 
-             
-            <button type="submit" class="btn">Register</button> 
-        </form> 
-         
-        <div class="login-link"> 
-            Already have an account? <a href="login.php">Login here</a> 
-        </div> 
-    </div> 
+    <body class="gradient-bg">
+    <div class="container">
+        <div class="card auth-card">
+            <div class="card-header">
+                <h1>Create Account</h1>
+            </div>
+
+            <div class="card-body">
+                <?php
+                // show validation / success messages if you have them
+                if (isset($error)) {
+                    echo '<p class="alert alert-error">' . htmlspecialchars($error) . '</p>';
+                }
+                if (isset($success)) {
+                    echo '<p class="alert alert-success">' . htmlspecialchars($success) . '</p>';
+                }
+                ?>
+
+                <form method="post" action="register.php">
+                    <div class="form-group">
+                        <label for="user_type">I am a:</label>
+                        <select id="user_type" name="user_type" class="form-control" required>
+                            <option value="">Select...</option>
+                            <option value="student">Student</option>
+                            <option value="alumni">Alumni</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="first_name">First Name:</label>
+                        <input type="text" id="first_name" name="first_name"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="last_name">Last Name:</label>
+                        <input type="text" id="last_name" name="last_name"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email"
+                               class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password"
+                               class="form-control" required>
+                        <small class="form-text">
+                            At least 8 characters, 1 uppercase, 1 lowercase, 1 number
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password:</label>
+                        <input type="password" id="confirm_password" name="confirm_password"
+                               class="form-control" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Register
+                    </button>
+
+                    <p class="form-text">
+                        Already have an account?
+                        <a href="login.php">Login here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
 </body> 
 </html> 

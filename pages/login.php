@@ -98,180 +98,68 @@ $success = getSuccess();
     <meta charset="UTF-8"> 
     <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     <title>Login - Alumni Portal</title> 
-    <style> 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-        } 
-         
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            min-height: 100vh; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            padding: 20px; 
-        } 
-         
-        .login-container { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 10px; 
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2); 
-            width: 100%; 
-            max-width: 450px; 
-        } 
-         
-        .login-container h2 { 
-            text-align: center; 
-            color: #333; 
-            margin-bottom: 30px; 
-        } 
-         
-        .form-group { 
-            margin-bottom: 20px; 
-        } 
-         
-        .form-group label { 
-            display: block; 
-            margin-bottom: 5px; 
-            color: #555; 
-            font-weight: 500; 
-        } 
-         
-        .form-group input { 
-            width: 100%; 
-            padding: 12px; 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            font-size: 14px; 
-            transition: border-color 0.3s; 
-        } 
-         
-        .form-group input:focus { 
-            outline: none; 
-            border-color: #667eea; 
-        } 
-         
-        .remember-me { 
-            display: flex; 
-            align-items: center; 
-            margin-bottom: 20px; 
-        } 
-         
-        .remember-me input { 
-            width: auto; 
-            margin-right: 8px; 
-        } 
-         
-        .remember-me label { 
-            margin: 0; 
-            font-weight: normal; 
-            color: #666; 
-        } 
-         
-        .error { 
-            background: #fee; 
-            color: #c33; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-            border-left: 4px solid #c33; 
-        } 
-         
-        .error ul { 
-            margin-left: 20px; 
-        } 
-         
-        .success { 
-            background: #efe; 
-            color: #3c3; 
-            padding: 10px; 
-            border-radius: 5px; 
-            margin-bottom: 20px; 
-            border-left: 4px solid #3c3; 
-        } 
-         
-        .btn { 
-            width: 100%; 
-            padding: 12px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-            color: white; 
-            border: none; 
-            border-radius: 5px; 
-            font-size: 16px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            transition: transform 0.2s; 
-        } 
-         
-        .btn:hover { 
-            transform: translateY(-2px); 
-        } 
-         
-        .register-link { 
-            text-align: center; 
-            margin-top: 20px; 
-            color: #666; 
-        } 
-         
-        .register-link a { 
-            color: #667eea; 
-            text-decoration: none; 
-            font-weight: 600; 
-        } 
-         
-        .register-link a:hover { 
-            text-decoration: underline; 
-        } 
-    </style> 
+   <link rel="stylesheet" href="../assets/css/style.css">
+
 </head> 
 <body> 
-    <div class="login-container"> 
-        <h2>Welcome Back</h2> 
-         
-        <?php if (!empty($errors)): ?> 
-            <div class="error"> 
-                <ul> 
-                    <?php foreach ($errors as $error): ?> 
-                        <li><?php echo $error; ?></li> 
-                    <?php endforeach; ?> 
-                </ul> 
-            </div> 
-        <?php endif; ?> 
-         
-        <?php if ($success): ?> 
-            <div class="success"><?php echo $success; ?></div> 
-        <?php endif; ?> 
-         
-        <form method="POST" action=""> 
-            <div class="form-group"> 
-                <label for="email">Email:</label> 
-                <input type="email" id="email" name="email"  
-                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : 
-(isset($_COOKIE['user_email']) ? htmlspecialchars($_COOKIE['user_email']) : ''); ?>"  
-                       required> 
-            </div> 
-             
-            <div class="form-group"> 
-                <label for="password">Password:</label> 
-                <input type="password" id="password" name="password" required> 
-            </div> 
-             
-            <div class="remember-me"> 
-                <input type="checkbox" id="remember_me" name="remember_me"  
-                       <?php echo isset($_COOKIE['user_email']) ? 'checked' : ''; ?>> 
-                <label for="remember_me">Remember me</label> 
-            </div> 
-             
-            <button type="submit" class="btn">Login</button> 
-        </form> 
-         
-        <div class="register-link"> 
-            Don't have an account? <a href="register.php">Register here</a> 
-        </div> 
-    </div> 
+    <body class="gradient-bg">
+    <div class="container">
+        <div class="card auth-card">
+            <div class="card-header">
+                <h1>Welcome Back</h1>
+            </div>
+
+            <div class="card-body">
+                <?php
+                // keep any PHP messages you already have, e.g. errors
+                if (isset($error)) {
+                    echo '<p class="alert alert-error">' . htmlspecialchars($error) . '</p>';
+                }
+                ?>
+
+                <form method="post" action="login.php">
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-control"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" name="remember_me">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Login
+                    </button>
+
+                    <p class="form-text">
+                        Don’t have an account?
+                        <a href="register.php">Register here</a>
+                    </p>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+
 </body> 
 </html>
