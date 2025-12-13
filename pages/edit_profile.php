@@ -20,143 +20,160 @@ $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Default values from profile (or empty)
-$first_name       = $profile['first_name']        ?? '';
-$last_name        = $profile['last_name']         ?? '';
-$university       = $profile['university']        ?? '';
-$major            = $profile['major']             ?? '';
-$graduation_year  = $profile['graduation_year']   ?? '';
-$current_position = $profile['current_position']  ?? '';
-$company          = $profile['company']           ?? '';
-$bio              = $profile['bio']               ?? '';
+// Default values
+$first_name = $profile['first_name'] ?? '';
+$last_name = $profile['last_name'] ?? '';
+
+$major = $profile['major'] ?? '';
+$graduation_year = $profile['graduation_year'] ?? '';
+$current_position = $profile['current_position'] ?? '';
+$company = $profile['company'] ?? '';
+$bio = $profile['bio'] ?? '';
+$profile_picture = $profile['profile_picture'] ?? '';
 
 $errors = [];
 
 // Handle form submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // CSRF check (functions.php)
     $token = $_POST['csrf_token'] ?? '';
-    if (!function_exists('verifyCSRFToken') || !verifyCSRFToken($token)) {
+    if (!verifyCSRFToken($token)) {
         $errors[] = 'Invalid form token. Please try again.';
     }
 
-    // Get & sanitize inputs (functions.php)
-    $first_name       = sanitizeInput($_POST['first_name']       ?? '');
-    $last_name        = sanitizeInput($_POST['last_name']        ?? '');
-    $university       = sanitizeInput($_POST['university']       ?? '');
-    $major            = sanitizeInput($_POST['major']            ?? '');
-    $graduation_year  = sanitizeInput($_POST['graduation_year']  ?? '');
+    $first_name = sanitizeInput($_POST['first_name'] ?? '');
+    $last_name = sanitizeInput($_POST['last_name'] ?? '');
+
+    $major = sanitizeInput($_POST['major'] ?? '');
+    $graduation_year = sanitizeInput($_POST['graduation_year'] ?? '');
     $current_position = sanitizeInput($_POST['current_position'] ?? '');
-    $company          = sanitizeInput($_POST['company']          ?? '');
-    $bio              = sanitizeInput($_POST['bio']              ?? '');
+    $company = sanitizeInput($_POST['company'] ?? '');
+    $bio = sanitizeInput($_POST['bio'] ?? '');
 
-    // Simple validation
-    if ($first_name === '') {
+    if ($first_name === '')
         $errors[] = 'First name is required.';
-    }
-    if ($last_name === '') {
+    if ($last_name === '')
         $errors[] = 'Last name is required.';
-    }
 
-    // Graduation year: allow empty or 4-digit number
     if ($graduation_year !== '' && !preg_match('/^\d{4}$/', $graduation_year)) {
-        $errors[] = 'Graduation year must be a 4-digit year (e.g., 2025).';
+        $errors[] = 'Graduation year must be a 4-digit number.';
     }
 
-    // If no errors → update DB
+    // Handle File Upload
+    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] !== UPLOAD_ERR_NO_FILE) {
+        $uploadResult = uploadFile($_FILES['profile_picture'], ['jpg', 'jpeg', 'png', 'gif'], 5242880, '../assets/uploads/');
+        if ($uploadResult['success']) {
+            $profile_picture = $uploadResult['filename'];
+        } else {
+            $errors[] = $uploadResult['message'];
+        }
+    }
+
     if (empty($errors)) {
-        $query = "UPDATE profiles
-                  SET first_name = :first_name,
-                      last_name = :last_name,
-                      university = :university,
-                      major = :major,
-                      graduation_year = :graduation_year,
-                      current_position = :current_position,
-                      company = :company,
-                      bio = :bio
+
+        $query = "UPDATE profiles SET
+                    first_name = :first_name,
+                    last_name = :last_name,
+
+                    major = :major,
+                    graduation_year = :graduation_year,
+                    current_position = :current_position,
+                    company = :company,
+                    bio = :bio,
+                    profile_picture = :profile_picture
                   WHERE user_id = :user_id";
 
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':first_name', $first_name);
         $stmt->bindParam(':last_name', $last_name);
-        $stmt->bindParam(':university', $university);
+
         $stmt->bindParam(':major', $major);
 
-        // graduation_year can be NULL
         if ($graduation_year === '') {
             $stmt->bindValue(':graduation_year', null, PDO::PARAM_NULL);
         } else {
-            $stmt->bindValue(':graduation_year', (int)$graduation_year, PDO::PARAM_INT);
+            $stmt->bindValue(':graduation_year', (int) $graduation_year, PDO::PARAM_INT);
         }
 
         $stmt->bindParam(':current_position', $current_position);
         $stmt->bindParam(':company', $company);
         $stmt->bindParam(':bio', $bio);
+        $stmt->bindParam(':profile_picture', $profile_picture);
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
-            // Success message helper (defined in functions.php in your project)
-            if (function_exists('setSuccess')) {
-                setSuccess('Profile updated successfully.');
-            }
+            setSuccess('Profile updated successfully!');
             header('Location: profile.php');
             exit;
         } else {
-            $errors[] = 'Failed to update profile. Please try again.';
+            $errors[] = 'Failed to update profile, please try again.';
         }
     }
 }
 
-// CSRF token for form
-$csrf_token = function_exists('generateCSRFToken') ? generateCSRFToken() : '';
+$csrf_token = generateCSRFToken();
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Edit Profile - Alumni Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Main Styling -->
     <link rel="stylesheet" href="../assets/css/style.css">
+
+    <!-- Page Specific CSS -->
     <style>
         .edit-profile-container {
             max-width: 800px;
             margin: 40px auto;
             padding: 0 20px;
         }
+
         .form-card {
             background: white;
             border-radius: 10px;
             padding: 40px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .form-header {
             margin-bottom: 30px;
         }
+
         .form-header h2 {
             color: #2c3e50;
             margin-bottom: 10px;
         }
+
         .form-header p {
             color: #666;
         }
+
         .form-section {
             margin-bottom: 30px;
             padding-bottom: 30px;
             border-bottom: 1px solid #f0f0f0;
         }
+
         .form-section:last-child {
             border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
         }
+
         .form-section h3 {
             font-size: 20px;
             color: #2c3e50;
             margin-bottom: 20px;
             display: flex;
+            display: flex;
             align-items: center;
             gap: 10px;
         }
+
         .form-section h3::before {
             content: '';
             width: 4px;
@@ -164,11 +181,13 @@ $csrf_token = function_exists('generateCSRFToken') ? generateCSRFToken() : '';
             background: #667eea;
             border-radius: 2px;
         }
+
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
         }
+
         .profile-picture-preview {
             width: 150px;
             height: 150px;
@@ -181,23 +200,28 @@ $csrf_token = function_exists('generateCSRFToken') ? generateCSRFToken() : '';
             justify-content: center;
             background: #f8f9fa;
         }
+
         .profile-picture-preview img {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
+
         .file-input-wrapper {
             position: relative;
             display: inline-block;
             width: 100%;
         }
+
         .file-input-wrapper input[type="file"] {
             position: absolute;
+            opacity: 0;
             opacity: 0;
             width: 100%;
             height: 100%;
             cursor: pointer;
         }
+
         .file-input-button {
             display: block;
             width: 100%;
@@ -210,166 +234,166 @@ $csrf_token = function_exists('generateCSRFToken') ? generateCSRFToken() : '';
             cursor: pointer;
             transition: all 0.3s ease;
         }
+
         .file-input-button:hover {
             border-color: #667eea;
             background: #f0f1ff;
             color: #667eea;
         }
-        @media (max-width: 768px) {
+
+        @media(max-width: 768px) {
             .form-row {
                 grid-template-columns: 1fr;
             }
+
             .form-card {
                 padding: 20px;
             }
         }
     </style>
 </head>
+
 <body>
 
-<!-- Navbar (same as other pages) -->
-<nav class="navbar">
-    <div class="navbar-container">
-        <a href="../index.php" class="navbar-brand">Alumni Portal</a>
-        <ul class="navbar-menu">
-            <li><a href="dashboard.php">Dashboard</a></li>
-            <li><a href="profile.php" class="active">Profile</a></li>
-            <li><a href="matching.php">Matching</a></li>
-            <li><a href="forum.php">Forum</a></li>
-            <li><a href="jobs.php">Jobs</a></li>
-            <li><a href="events.php">Events</a></li>
-            <li>
-                <span class="badge badge-secondary">
-                    <?php echo ucfirst(getUserType()); ?>
-                </span>
-            </li>
-            <li><a href="logout.php">Logout</a></li>
-        </ul>
+    <!-- 🔥 Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
     </div>
-</nav>
 
-<div class="edit-profile-container">
-    <div class="form-card">
-        <div class="form-header">
-            <h2>Edit Profile</h2>
-            <p>Update your academic and professional information.</p>
+    <!-- 🔥 Navbar -->
+    <nav class="navbar">
+        <div class="navbar-container">
+            <a href="../index.php" class="navbar-brand">Alumni Portal</a>
+
+            <button class="mobile-menu-toggle">☰</button>
+
+            <ul class="navbar-menu">
+                <li><a href="dashboard.php">Dashboard</a></li>
+                <li><a href="profile.php" class="active">Profile</a></li>
+                <li><a href="matching.php">Matching</a></li>
+                <li><a href="forum.php">Forum</a></li>
+                <li><a href="jobs.php">Jobs</a></li>
+                <li><a href="events.php">Events</a></li>
+                <li><span class="badge badge-secondary"><?php echo ucfirst(getUserType()); ?></span></li>
+                <li><a href="logout.php">Logout</a></li>
+            </ul>
         </div>
+    </nav>
 
-        <?php if (!empty($errors)): ?>
-            <div class="alert alert-error">
-                <?php foreach ($errors as $error): ?>
-                    <p><?php echo htmlspecialchars($error); ?></p>
-                <?php endforeach; ?>
-            </div>
-        <?php endif; ?>
+    <div class="mobile-overlay"></div>
 
-        <form method="post" action="edit_profile.php">
-            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+    <!-- 🔥 Page Content -->
+    <div class="edit-profile-container">
+        <div class="form-card">
 
-            <!-- Basic Info -->
-            <div class="form-section">
-                <h3>Basic Information</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="first_name">First Name</label>
-                        <input
-                            type="text"
-                            id="first_name"
-                            name="first_name"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($first_name); ?>"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label for="last_name">Last Name</label>
-                        <input
-                            type="text"
-                            id="last_name"
-                            name="last_name"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($last_name); ?>"
-                            required>
-                    </div>
-                </div>
+            <div class="form-header">
+                <h2>Edit Profile</h2>
+                <p>Update your academic and professional information.</p>
             </div>
 
-            <!-- Academic / Professional -->
-            <div class="form-section">
-                <h3>Academic &amp; Professional</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="university">University</label>
-                        <input
-                            type="text"
-                            id="university"
-                            name="university"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($university); ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="major">Major</label>
-                        <input
-                            type="text"
-                            id="major"
-                            name="major"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($major); ?>">
-                    </div>
+            <?php if (!empty($errors)): ?>
+                <div class="alert alert-error">
+                    <?php foreach ($errors as $error): ?>
+                        <p><?php echo htmlspecialchars($error); ?></p>
+                    <?php endforeach; ?>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="graduation_year">Graduation Year</label>
-                        <input
-                            type="text"
-                            id="graduation_year"
-                            name="graduation_year"
-                            class="form-control"
-                            placeholder="e.g. 2025"
-                            value="<?php echo htmlspecialchars($graduation_year); ?>">
-                    </div>
-                    <div class="form-group">
-                        <label for="current_position">Current Role</label>
-                        <input
-                            type="text"
-                            id="current_position"
-                            name="current_position"
-                            class="form-control"
-                            value="<?php echo htmlspecialchars($current_position); ?>">
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="company">Company</label>
-                    <input
-                        type="text"
-                        id="company"
-                        name="company"
-                        class="form-control"
-                        value="<?php echo htmlspecialchars($company); ?>">
-                </div>
-            </div>
+            <?php endif; ?>
 
-            <!-- About / Bio -->
-            <div class="form-section">
-                <h3>About</h3>
-                <div class="form-group">
-                    <label for="bio">Bio</label>
-                    <textarea
-                        id="bio"
-                        name="bio"
-                        class="form-control"
-                        rows="4"
-                        placeholder="Tell others a bit about yourself..."><?php echo htmlspecialchars($bio); ?></textarea>
-                </div>
-            </div>
+            <form method="post" action="edit_profile.php" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
-            <div class="form-section">
-                <button type="submit" class="btn btn-primary btn-block">
-                    Save Changes
-                </button>
-            </div>
-        </form>
+                <!-- Profile Picture Section -->
+                <div class="form-section">
+                    <h3>Profile Picture</h3>
+                    <div class="profile-picture-preview">
+                        <?php if (!empty($profile_picture) && file_exists('../assets/uploads/' . $profile_picture)): ?>
+                            <img src="../assets/uploads/<?php echo htmlspecialchars($profile_picture); ?>"
+                                alt="Profile Picture">
+                        <?php else: ?>
+                            <!-- Initials fallback (if needed, or just default icon) -->
+                            <span style="font-size: 48px; font-weight: bold; color: #ccc;">
+                                <?php echo strtoupper(substr($first_name, 0, 1) . substr($last_name, 0, 1)); ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="file-input-wrapper">
+                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
+                        <label for="profile_picture" class="file-input-button">
+                            Change Profile Picture
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Basic Info -->
+                <div class="form-section">
+                    <h3>Basic Information</h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="first_name">First Name</label>
+                            <input type="text" id="first_name" name="first_name" class="form-control"
+                                value="<?php echo htmlspecialchars($first_name); ?>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="last_name">Last Name</label>
+                            <input type="text" id="last_name" name="last_name" class="form-control"
+                                value="<?php echo htmlspecialchars($last_name); ?>" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Section -->
+                <div class="form-section">
+                    <h3>Academic & Professional</h3>
+                    <div class="form-row">
+
+                        <div class="form-group">
+                            <label for="major">Major</label>
+                            <input type="text" id="major" name="major" class="form-control"
+                                value="<?php echo htmlspecialchars($major); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="graduation_year">Graduation Year</label>
+                            <input type="text" id="graduation_year" name="graduation_year" class="form-control"
+                                placeholder="e.g. 2025" value="<?php echo htmlspecialchars($graduation_year); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label for="current_position">Current Role</label>
+                            <input type="text" id="current_position" name="current_position" class="form-control"
+                                value="<?php echo htmlspecialchars($current_position); ?>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="company">Company</label>
+                        <input type="text" id="company" name="company" class="form-control"
+                            value="<?php echo htmlspecialchars($company); ?>">
+                    </div>
+                </div>
+
+                <!-- About Section -->
+                <div class="form-section">
+                    <h3>About</h3>
+                    <div class="form-group">
+                        <label for="bio">Bio</label>
+                        <textarea id="bio" name="bio" class="form-control" rows="4"
+                            placeholder="Tell others about yourself..."><?php echo htmlspecialchars($bio); ?></textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <button type="submit" class="btn btn-primary btn-block">
+                        Save Changes
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
-</div>
 
+    <!-- Load Main JS -->
+    <script src="../assets/js/main.js"></script>
 </body>
+
 </html>

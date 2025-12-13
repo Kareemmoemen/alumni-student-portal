@@ -7,12 +7,12 @@ require_once '../includes/functions.php';
 requireLogin();
 
 // Get current user info
-$user_id   = getUserId();
+$user_id = getUserId();
 $user_type = getUserType();
 
 // Create DB connection
 $database = new Database();
-$conn     = $database->getConnection();
+$conn = $database->getConnection();
 
 // Get user profile + account info
 $query = "SELECT p.*, u.email, u.registration_date
@@ -24,24 +24,44 @@ $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 $stmt->execute();
 $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
+
+// Get skills
+$query = "SELECT * FROM skills WHERE user_id = :user_id ORDER BY skill_name";
+$stmt = $conn->prepare($query);
+$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->execute();
+$skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Helper for badge style
+function getSkillBadgeClass($level)
+{
+    return match (strtolower($level)) {
+        'intermediate' => 'skill-intermediate',
+        'advanced' => 'skill-advanced',
+        default => 'skill-beginner'
+    };
+}
+
 // Simple fallback if profile is missing
 if (!$profile) {
     $profile = [
-        'first_name'        => 'Unknown',
-        'last_name'         => '',
-        'email'             => getUserEmail(),
-        'major'             => '',
-        'university'        => '',
-        'graduation_year'   => '',
-        'current_position'  => '',
-        'company'           => '',
-        'bio'               => '',
+        'first_name' => 'Unknown',
+        'last_name' => '',
+        'email' => getUserEmail(),
+        'major' => '',
+
+        'graduation_year' => '',
+        'current_position' => '',
+        'company' => '',
+        'profile_picture' => '',
+        'bio' => '',
         'registration_date' => date('Y-m-d'),
     ];
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>My Profile - Alumni Portal</title>
@@ -55,17 +75,18 @@ if (!$profile) {
         }
 
         .profile-header-card {
-            background: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border-radius: 15px;
             padding: 0;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
+            color: white;
         }
 
         .profile-banner {
             height: 150px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* background removed */
             position: relative;
         }
 
@@ -86,7 +107,7 @@ if (!$profile) {
             font-size: 48px;
             font-weight: bold;
             color: #667eea;
-            border: 5px solid white;
+            border: 5px solid rgba(255, 255, 255, 0.3);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             overflow: hidden;
         }
@@ -98,19 +119,19 @@ if (!$profile) {
         }
 
         .profile-info {
-            margin-top: 20px;
+            margin-top: 70px;
         }
 
         .profile-name {
             font-size: 32px;
             font-weight: 700;
-            color: #2c3e50;
+            color: white;
             margin-bottom: 10px;
         }
 
         .profile-title {
             font-size: 18px;
-            color: #666;
+            color: rgba(255, 255, 255, 0.9);
             margin-bottom: 15px;
         }
 
@@ -118,6 +139,18 @@ if (!$profile) {
             display: flex;
             gap: 10px;
             margin-top: 20px;
+        }
+
+        /* Custom button overrides for dark background */
+        .profile-actions .btn {
+            background: white;
+            color: #667eea;
+            border: none;
+        }
+
+        .profile-actions .btn:hover {
+            background: #f0f0f0;
+            transform: translateY(-2px);
         }
 
         .info-section {
@@ -219,12 +252,22 @@ if (!$profile) {
         }
     </style>
 </head>
+
 <body>
 
-    <!-- Navbar (same style as other pages) -->
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Navbar (updated to responsive version) -->
     <nav class="navbar">
         <div class="navbar-container">
             <a href="../index.php" class="navbar-brand">Alumni Portal</a>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">☰</button>
+
             <ul class="navbar-menu">
                 <li><a href="dashboard.php">Dashboard</a></li>
                 <li><a href="profile.php" class="active">Profile</a></li>
@@ -242,6 +285,9 @@ if (!$profile) {
         </div>
     </nav>
 
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay"></div>
+
     <div class="profile-container">
 
         <!-- Header card -->
@@ -251,13 +297,21 @@ if (!$profile) {
                 <div style="display:flex; gap:20px; align-items:center;">
                     <div class="profile-avatar">
                         <?php
-                        $initials = strtoupper(substr($profile['first_name'], 0, 1) . substr($profile['last_name'], 0, 1));
-                        echo htmlspecialchars($initials);
+                        // Check if file exists and isn't empty
+                        if (!empty($profile['profile_picture']) && file_exists('../assets/uploads/' . $profile['profile_picture'])) {
+                            echo '<img src="../assets/uploads/' . htmlspecialchars($profile['profile_picture']) . '" alt="Profile Picture">';
+                        } else {
+                            // Fallback to initials
+                            $first = $profile['first_name'] ?? '?';
+                            $last = $profile['last_name'] ?? '?';
+                            $initials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
+                            echo htmlspecialchars($initials);
+                        }
                         ?>
                     </div>
                     <div class="profile-info">
                         <div class="profile-name">
-                            <?php echo htmlspecialchars($profile['first_name'] . ' ' . $profile['last_name']); ?>
+                            <?php echo htmlspecialchars(($profile['first_name'] ?? 'Unknown') . ' ' . ($profile['last_name'] ?? '')); ?>
                         </div>
                         <div class="profile-title">
                             <?php
@@ -277,9 +331,7 @@ if (!$profile) {
                             if (!empty($profile['major'])) {
                                 $sub[] = $profile['major'];
                             }
-                            if (!empty($profile['university'])) {
-                                $sub[] = $profile['university'];
-                            }
+
                             if (!empty($profile['graduation_year'])) {
                                 $sub[] = 'Class of ' . $profile['graduation_year'];
                             }
@@ -324,10 +376,7 @@ if (!$profile) {
                     <div class="info-label">Major</div>
                     <div class="info-value"><?php echo htmlspecialchars($profile['major']); ?></div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">University</div>
-                    <div class="info-value"><?php echo htmlspecialchars($profile['university']); ?></div>
-                </div>
+
                 <div class="info-item">
                     <div class="info-label">Graduation Year</div>
                     <div class="info-value"><?php echo htmlspecialchars($profile['graduation_year']); ?></div>
@@ -355,25 +404,41 @@ if (!$profile) {
             </p>
         </div>
 
-        <!-- Skills placeholder (you can hook into your skills table later) -->
+        <!-- Skills placeholder -->
         <div class="info-section">
             <div class="section-title">
                 <span>Skills</span>
+                <a href="manage_skills.php"
+                    style="font-size:14px; color:var(--primary-color); text-decoration:none;">Add New +</a>
             </div>
             <div class="skills-grid">
-                <!-- Example static skills; later replace with skills from DB -->
-                <span class="skill-badge skill-beginner">
-                    <span class="skill-level-icon">●</span> Sample Beginner Skill
-                </span>
-                <span class="skill-badge skill-intermediate">
-                    <span class="skill-level-icon">●●</span> Sample Intermediate Skill
-                </span>
-                <span class="skill-badge skill-advanced">
-                    <span class="skill-level-icon">●●●</span> Sample Advanced Skill
-                </span>
+                <?php if (count($skills) > 0): ?>
+                    <?php foreach ($skills as $skill): ?>
+                        <?php
+                        $level = $skill['proficiency_level'] ?? 'beginner';
+                        $badgeClass = getSkillBadgeClass($level);
+                        $dots = match (strtolower($level)) {
+                            'advanced' => '●●●',
+                            'intermediate' => '●●',
+                            default => '●'
+                        };
+                        ?>
+                        <span class="skill-badge <?php echo htmlspecialchars($badgeClass); ?>">
+                            <span class="skill-level-icon"><?php echo $dots; ?></span>
+                            <?php echo htmlspecialchars($skill['skill_name']); ?>
+                        </span>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <p class="text-muted" style="color:#999; font-style:italic;">
+                        No skills added yet. Click "Manage Skills" to add some!
+                    </p>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 
+    <!-- JS at bottom so DOM is ready -->
+    <script src="../assets/js/main.js"></script>
 </body>
+
 </html>

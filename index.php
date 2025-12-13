@@ -47,7 +47,7 @@ $stmt->execute();
 $recent_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Get recent jobs (top 3)
-$query = "SELECT j.*, p.first_name, p.last_name, p.company
+$query = "SELECT j.*, p.first_name, p.last_name
  FROM jobs j
  INNER JOIN profiles p ON j.posted_by = p.user_id
  WHERE j.status = 'active' AND j.application_deadline >= CURDATE()
@@ -59,6 +59,7 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -285,11 +286,24 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
 </head>
+
 <body>
+    <!-- Skip Link -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+
     <!-- Navigation -->
     <nav class="navbar">
         <div class="navbar-container">
             <a href="index.php" class="navbar-brand"> Alumni Portal</a>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-menu-toggle">☰</button>
+
             <ul class="navbar-menu">
                 <li><a href="pages/login.php">Login</a></li>
                 <li><a href="pages/register.php" class="btn btn-primary btn-sm">Get Started</a></li>
@@ -297,127 +311,135 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <h1>Connect. Learn. Grow.</h1>
-            <p>Bridge the gap between students and alumni. Find mentors, explore opportunities, and build meaningful connections.</p>
-            <div class="hero-buttons">
-                <a href="pages/register.php" class="btn btn-white btn-lg">Join Now</a>
-                <a href="#features" class="btn btn-outline btn-lg" style="color: white; border-color: white;">Learn More</a>
-            </div>
-        </div>
-    </section>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay"></div>
 
-    <!-- Statistics Section -->
-    <section class="stats-section">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $total_users; ?></div>
-                <div class="stat-label">Total Members</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $total_students; ?></div>
-                <div class="stat-label">Active Students</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $total_alumni; ?></div>
-                <div class="stat-label">Alumni Network</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number"><?php echo $total_connections; ?></div>
-                <div class="stat-label">Connections Made</div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features-section" id="features">
-        <h2 class="section-title">What We Offer</h2>
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Mentorship Matching</h3>
-                <p>Connect students with experienced alumni based on shared interests, skills, and career goals.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Discussion Forum</h3>
-                <p>Ask questions, share experiences, and engage in meaningful conversations with the community.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Job Opportunities</h3>
-                <p>Discover internships and job openings posted by alumni and industry professionals.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Networking Events</h3>
-                <p>Attend workshops, seminars, and networking events to expand your professional network.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Career Resources</h3>
-                <p>Access career guidance, resume tips, and interview preparation from experienced professionals.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon"></div>
-                <h3>Skill Development</h3>
-                <p>Showcase your skills and learn from others' expertise to advance your career.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Recent Events -->
-    <?php if (count($recent_events) > 0): ?>
-        <section class="recent-section">
-            <h2 class="section-title">Upcoming Events</h2>
-            <div class="content-grid">
-                <?php foreach ($recent_events as $event): ?>
-                    <div class="content-card">
-                        <h4><?php echo htmlspecialchars($event['title']); ?></h4>
-                        <div class="content-meta">
-                            <?php echo date('F j, Y', strtotime($event['event_date'])); ?> | 
-                            <?php echo htmlspecialchars($event['location']); ?>
-                        </div>
-                        <p><?php echo substr(htmlspecialchars($event['description']), 0, 100); ?>...</p>
-                        <span class="badge badge-primary"><?php echo ucfirst($event['event_type']); ?></span>
-                    </div>
-                <?php endforeach; ?>
+    <main id="main-content">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <h1>Connect. Learn. Grow.</h1>
+                <p>Bridge the gap between students and alumni. Find mentors, explore opportunities, and build meaningful
+                    connections.</p>
+                <div class="hero-buttons">
+                    <a href="pages/register.php" class="btn btn-white btn-lg">Join Now</a>
+                    <a href="#features" class="btn btn-outline btn-lg" style="color: white; border-color: white;">Learn
+                        More</a>
+                </div>
             </div>
         </section>
-    <?php endif; ?>
 
-    <!-- Recent Jobs -->
-    <?php if (count($recent_jobs) > 0): ?>
-        <section class="recent-section" style="background: #f8f9fa;">
-            <h2 class="section-title">Latest Job Opportunities</h2>
-            <div class="content-grid">
-                <?php foreach ($recent_jobs as $job): ?>
-                    <div class="content-card">
-                        <h4><?php echo htmlspecialchars($job['title']); ?></h4>
-                        <div class="content-meta">
-                            <?php echo htmlspecialchars($job['company']); ?> | 
-                            <?php echo htmlspecialchars($job['location']); ?>
-                        </div>
-                        <p><?php echo substr(htmlspecialchars($job['description']), 0, 100); ?>...</p>
-                        <span class="badge badge-success">
-                            <?php echo ucfirst(str_replace('-', ' ', $job['job_type'])); ?>
-                        </span>
-                    </div>
-                <?php endforeach; ?>
+        <!-- Statistics Section -->
+        <section class="stats-section">
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number"><?php echo $total_users; ?></div>
+                    <div class="stat-label">Total Members</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><?php echo $total_students; ?></div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><?php echo $total_alumni; ?></div>
+                    <div class="stat-label">Alumni Network</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number"><?php echo $total_connections; ?></div>
+                    <div class="stat-label">Connections Made</div>
+                </div>
             </div>
         </section>
-    <?php endif; ?>
 
-    <!-- Call to Action -->
-    <section class="cta-section">
-        <div class="container">
-            <h2>Ready to Get Started?</h2>
-            <p>Join our community of students and alumni today!</p>
-            <a href="pages/register.php" class="btn btn-white btn-lg">Create Your Account</a>
-        </div>
-    </section>
+        <!-- Features Section -->
+        <section class="features-section" id="features">
+            <h2 class="section-title">What We Offer</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Mentorship Matching</h3>
+                    <p>Connect students with experienced alumni based on shared interests, skills, and career goals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Discussion Forum</h3>
+                    <p>Ask questions, share experiences, and engage in meaningful conversations with the community.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Job Opportunities</h3>
+                    <p>Discover internships and job openings posted by alumni and industry professionals.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Networking Events</h3>
+                    <p>Attend workshops, seminars, and networking events to expand your professional network.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Career Resources</h3>
+                    <p>Access career guidance, resume tips, and interview preparation from experienced professionals.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon"></div>
+                    <h3>Skill Development</h3>
+                    <p>Showcase your skills and learn from others' expertise to advance your career.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Recent Events -->
+        <?php if (count($recent_events) > 0): ?>
+            <section class="recent-section">
+                <h2 class="section-title">Upcoming Events</h2>
+                <div class="content-grid">
+                    <?php foreach ($recent_events as $event): ?>
+                        <div class="content-card">
+                            <h4><?php echo htmlspecialchars($event['title']); ?></h4>
+                            <div class="content-meta">
+                                <?php echo date('F j, Y', strtotime($event['event_date'])); ?> |
+                                <?php echo htmlspecialchars($event['location']); ?>
+                            </div>
+                            <p><?php echo substr(htmlspecialchars($event['description']), 0, 100); ?>...</p>
+                            <span class="badge badge-primary"><?php echo ucfirst($event['event_type']); ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- Recent Jobs -->
+        <?php if (count($recent_jobs) > 0): ?>
+            <section class="recent-section" style="background: #f8f9fa;">
+                <h2 class="section-title">Latest Job Opportunities</h2>
+                <div class="content-grid">
+                    <?php foreach ($recent_jobs as $job): ?>
+                        <div class="content-card">
+                            <h4><?php echo htmlspecialchars($job['title']); ?></h4>
+                            <div class="content-meta">
+                                <?php echo htmlspecialchars($job['company']); ?> |
+                                <?php echo htmlspecialchars($job['location']); ?>
+                            </div>
+                            <p><?php echo substr(htmlspecialchars($job['description']), 0, 100); ?>...</p>
+                            <span class="badge badge-success">
+                                <?php echo ucfirst(str_replace('-', ' ', $job['job_type'])); ?>
+                            </span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </section>
+        <?php endif; ?>
+
+        <!-- Call to Action -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Get Started?</h2>
+                <p>Join our community of students and alumni today!</p>
+                <a href="pages/register.php" class="btn btn-white btn-lg">Create Your Account</a>
+            </div>
+        </section>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
@@ -426,5 +448,9 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <p>Developed by Kareem Moemen Mounir &amp; Youssef Fouad Hassan</p>
         </div>
     </footer>
+
+    <!-- Include JavaScript -->
+    <script src="assets/js/main.js"></script>
 </body>
+
 </html>

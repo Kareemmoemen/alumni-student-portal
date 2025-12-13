@@ -272,222 +272,236 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </style>
 </head>
 <body>
-    <!-- Navigation -->
+
+    <!-- Skip link for keyboard users (PDF Step 5) -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
     <nav class="navbar">
-        <div class="navbar-container">
-            <a href="../index.php" class="navbar-brand">Alumni Portal</a>
-            <ul class="navbar-menu">
-                <li><a href="dashboard.php" class="active">Dashboard</a></li>
-                <li><a href="profile.php">Profile</a></li>
-                <li><a href="matching.php">Matching</a></li>
-                <li><a href="forum.php">Forum</a></li>
-                <li><a href="jobs.php">Jobs</a></li>
-                <li><a href="events.php">Events</a></li>
-                <li>
-                    <span class="badge badge-secondary"><?php echo ucfirst($user_type); ?></span>
-                </li>
-                <li><a href="logout.php">Logout</a></li>
-            </ul>
-        </div>
+      <div class="navbar-container">
+        <a href="../index.php" class="navbar-brand">Alumni Portal</a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle">☰</button>
+
+        <ul class="navbar-menu">
+          <li><a href="dashboard.php" class="active">Dashboard</a></li>
+          <li><a href="profile.php">Profile</a></li>
+          <li><a href="matching.php">Matching</a></li>
+          <li><a href="forum.php">Forum</a></li>
+          <li><a href="jobs.php">Jobs</a></li>
+          <li><a href="events.php">Events</a></li>
+          <li><span class="badge badge-secondary"><?php echo ucfirst($user_type); ?></span></li>
+          <li><a href="logout.php">Logout</a></li>
+        </ul>
+      </div>
     </nav>
 
-    <div class="container" style="margin-top: 30px;">
-        <?php
-        $success = getSuccess();
-        if ($success):
-        ?>
-            <div class="alert alert-success"><?php echo $success; ?></div>
-        <?php endif; ?>
+    <!-- Mobile Overlay -->
+    <div class="mobile-overlay"></div>
 
-        <!-- Welcome Card -->
-        <div class="welcome-card">
-            <h2>Welcome back, <?php echo htmlspecialchars($profile['first_name']); ?>!</h2>
-            <p>Member since <?php echo formatDate($profile['registration_date']); ?></p>
-        </div>
+    <!-- Main content wrapper for accessibility -->
+    <main id="main-content">
+        <div class="container" style="margin-top: 30px;">
+            <?php
+            $success = getSuccess();
+            if ($success):
+            ?>
+                <div class="alert alert-success"><?php echo $success; ?></div>
+            <?php endif; ?>
 
-        <!-- Platform Stats -->
-        <div class="stats-mini-grid" style="margin-top: 20px;">
-            <div class="stat-mini-card">
-                <h3><?php echo $total_users; ?></h3>
-                <p>Total Members</p>
+            <!-- Welcome Card -->
+            <div class="welcome-card">
+                <h2>Welcome back, <?php echo htmlspecialchars($profile['first_name']); ?>!</h2>
+                <p>Member since <?php echo formatDate($profile['registration_date']); ?></p>
             </div>
-            <div class="stat-mini-card">
-                <h3><?php echo $total_students; ?></h3>
-                <p>Students</p>
-            </div>
-            <div class="stat-mini-card">
-                <h3><?php echo $total_alumni; ?></h3>
-                <p>Alumni</p>
-            </div>
-            <div class="stat-mini-card">
-                <h3><?php echo $total_matches; ?></h3>
-                <p>Connections</p>
-            </div>
-        </div>
 
-        <!-- Dashboard Grid -->
-        <div class="dashboard-grid">
-            <!-- Main Content -->
-            <div class="main-content">
-                <!-- Quick Actions -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Quick Actions</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="action-grid">
-                            <a href="profile.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>My Profile</h4>
-                            </a>
-                            <a href="matching.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>Find Mentors</h4>
-                            </a>
-                            <a href="forum.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>Forum</h4>
-                            </a>
-                            <a href="jobs.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>Job Board</h4>
-                            </a>
-                            <a href="events.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>Events</h4>
-                            </a>
-                            <a href="manage_skills.php" class="action-card">
-                                <div class="icon"></div>
-                                <h4>Skills</h4>
-                            </a>
-                        </div>
-                    </div>
+            <!-- Platform Stats -->
+            <div class="stats-mini-grid" style="margin-top: 20px;">
+                <div class="stat-mini-card">
+                    <h3><?php echo $total_users; ?></h3>
+                    <p>Total Members</p>
                 </div>
-
-                <!-- Recent Forum Activity -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Recent Forum Activity</h3>
-                    </div>
-                    <div class="card-body">
-                        <?php if (count($recent_posts) > 0): ?>
-                            <?php foreach ($recent_posts as $post): ?>
-                                <div class="activity-item">
-                                    <div class="activity-icon"></div>
-                                    <div class="activity-content">
-                                        <h4><?php echo htmlspecialchars($post['title']); ?></h4>
-                                        <p><?php echo substr(htmlspecialchars($post['content']), 0, 100); ?>...</p>
-                                        <div class="activity-meta">
-                                            By <?php echo htmlspecialchars($post['first_name'] . ' ' . $post['last_name']); ?>
-                                            • <?php echo timeAgo($post['created_at']); ?>
-                                            • <?php echo $post['reply_count']; ?> replies
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-muted">No forum activity yet.</p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="card-footer">
-                        <a href="forum.php" class="btn btn-outline">View All Posts</a>
-                    </div>
+                <div class="stat-mini-card">
+                    <h3><?php echo $total_students; ?></h3>
+                    <p>Students</p>
+                </div>
+                <div class="stat-mini-card">
+                    <h3><?php echo $total_alumni; ?></h3>
+                    <p>Alumni</p>
+                </div>
+                <div class="stat-mini-card">
+                    <h3><?php echo $total_matches; ?></h3>
+                    <p>Connections</p>
                 </div>
             </div>
 
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- User-specific Card -->
-                <?php if ($user_type === 'student'): ?>
+            <!-- Dashboard Grid -->
+            <div class="dashboard-grid">
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Quick Actions -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Your Stats</h3>
+                            <h3>Quick Actions</h3>
                         </div>
                         <div class="card-body">
-                            <div class="stat-mini-card" style="margin-bottom: 15px;">
-                                <h3><?php echo $pending_requests; ?></h3>
-                                <p>Pending Requests</p>
+                            <div class="action-grid">
+                                <a href="profile.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>My Profile</h4>
+                                </a>
+                                <a href="matching.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>Find Mentors</h4>
+                                </a>
+                                <a href="forum.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>Forum</h4>
+                                </a>
+                                <a href="jobs.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>Job Board</h4>
+                                </a>
+                                <a href="events.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>Events</h4>
+                                </a>
+                                <a href="manage_skills.php" class="action-card">
+                                    <div class="icon"></div>
+                                    <h4>Skills</h4>
+                                </a>
                             </div>
-                            <a href="matching.php" class="btn btn-primary btn-block">Find Mentors</a>
                         </div>
                     </div>
 
-                    <?php if (count($suggested_mentors) > 0): ?>
-                        <div class="card">
-                            <div class="card-header">
-                                <h3>Suggested Mentors</h3>
-                            </div>
-                            <div class="card-body">
-                                <?php foreach ($suggested_mentors as $mentor): ?>
+                    <!-- Recent Forum Activity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Forum Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            <?php if (count($recent_posts) > 0): ?>
+                                <?php foreach ($recent_posts as $post): ?>
                                     <div class="activity-item">
                                         <div class="activity-icon"></div>
                                         <div class="activity-content">
-                                            <h4><?php echo htmlspecialchars($mentor['first_name'] . ' ' . $mentor['last_name']); ?></h4>
-                                            <p><?php echo htmlspecialchars($mentor['major']); ?></p>
-                                            <?php if (!empty($mentor['company'])): ?>
-                                                <div class="activity-meta">
-                                                    <?php echo htmlspecialchars($mentor['company']); ?>
-                                                </div>
-                                            <?php endif; ?>
+                                            <h4><?php echo htmlspecialchars($post['title']); ?></h4>
+                                            <p><?php echo substr(htmlspecialchars($post['content']), 0, 100); ?>...</p>
+                                            <div class="activity-meta">
+                                                By <?php echo htmlspecialchars($post['first_name'] . ' ' . $post['last_name']); ?>
+                                                • <?php echo timeAgo($post['created_at']); ?>
+                                                • <?php echo $post['reply_count']; ?> replies
+                                            </div>
                                         </div>
                                     </div>
                                 <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">No forum activity yet.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-footer">
+                            <a href="forum.php" class="btn btn-outline">View All Posts</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- User-specific Card -->
+                    <?php if ($user_type === 'student'): ?>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Your Stats</h3>
                             </div>
-                            <div class="card-footer">
-                                <a href="matching.php" class="btn btn-outline btn-block">View All</a>
+                            <div class="card-body">
+                                <div class="stat-mini-card" style="margin-bottom: 15px;">
+                                    <h3><?php echo $pending_requests; ?></h3>
+                                    <p>Pending Requests</p>
+                                </div>
+                                <a href="matching.php" class="btn btn-primary btn-block">Find Mentors</a>
+                            </div>
+                        </div>
+
+                        <?php if (count($suggested_mentors) > 0): ?>
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3>Suggested Mentors</h3>
+                                </div>
+                                <div class="card-body">
+                                    <?php foreach ($suggested_mentors as $mentor): ?>
+                                        <div class="activity-item">
+                                            <div class="activity-icon"></div>
+                                            <div class="activity-content">
+                                                <h4><?php echo htmlspecialchars($mentor['first_name'] . ' ' . $mentor['last_name']); ?></h4>
+                                                <p><?php echo htmlspecialchars($mentor['major']); ?></p>
+                                                <?php if (!empty($mentor['company'])): ?>
+                                                    <div class="activity-meta">
+                                                        <?php echo htmlspecialchars($mentor['company']); ?>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                </div>
+                                <div class="card-footer">
+                                    <a href="matching.php" class="btn btn-outline btn-block">View All</a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
+                    <?php elseif ($user_type === 'alumni'): ?>
+                        <div class="card">
+                            <div class="card-header">
+                                <h3>Your Activity</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="stats-mini-grid" style="grid-template-columns: 1fr;">
+                                    <div class="stat-mini-card" style="margin-bottom: 10px;">
+                                        <h3><?php echo $pending_requests; ?></h3>
+                                        <p>Mentorship Requests</p>
+                                    </div>
+                                    <div class="stat-mini-card">
+                                        <h3><?php echo $my_jobs; ?></h3>
+                                        <p>Active Job Posts</p>
+                                    </div>
+                                </div>
+                                <a href="jobs.php?action=create" class="btn btn-primary btn-block" style="margin-top: 15px;">
+                                    Post a Job
+                                </a>
                             </div>
                         </div>
                     <?php endif; ?>
 
-                <?php elseif ($user_type === 'alumni'): ?>
+                    <!-- Upcoming Events -->
                     <div class="card">
                         <div class="card-header">
-                            <h3>Your Activity</h3>
+                            <h3>Upcoming Events</h3>
                         </div>
                         <div class="card-body">
-                            <div class="stats-mini-grid" style="grid-template-columns: 1fr;">
-                                <div class="stat-mini-card" style="margin-bottom: 10px;">
-                                    <h3><?php echo $pending_requests; ?></h3>
-                                    <p>Mentorship Requests</p>
-                                </div>
-                                <div class="stat-mini-card">
-                                    <h3><?php echo $my_jobs; ?></h3>
-                                    <p>Active Job Posts</p>
-                                </div>
-                            </div>
-                            <a href="jobs.php?action=create" class="btn btn-primary btn-block" style="margin-top: 15px;">
-                                Post a Job
-                            </a>
-                        </div>
-                    </div>
-                <?php endif; ?>
-
-                <!-- Upcoming Events -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Upcoming Events</h3>
-                    </div>
-                    <div class="card-body">
-                        <?php if (count($upcoming_events) > 0): ?>
-                            <?php foreach ($upcoming_events as $event): ?>
-                                <div class="event-item">
-                                    <h4><?php echo htmlspecialchars($event['title']); ?></h4>
-                                    <div class="event-meta">
-                                        <?php echo formatDate($event['event_date']); ?><br>
-                                        <?php echo htmlspecialchars($event['location']); ?>
+                            <?php if (count($upcoming_events) > 0): ?>
+                                <?php foreach ($upcoming_events as $event): ?>
+                                    <div class="event-item">
+                                        <h4><?php echo htmlspecialchars($event['title']); ?></h4>
+                                        <div class="event-meta">
+                                            <?php echo formatDate($event['event_date']); ?><br>
+                                            <?php echo htmlspecialchars($event['location']); ?>
+                                        </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-muted">No upcoming events.</p>
-                        <?php endif; ?>
-                    </div>
-                    <div class="card-footer">
-                        <a href="events.php" class="btn btn-outline btn-block">View All Events</a>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-muted">No upcoming events.</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="card-footer">
+                            <a href="events.php" class="btn btn-outline btn-block">View All Events</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
+
+    <!-- Include JavaScript at the very end -->
+    <script src="../assets/js/main.js"></script>
 </body>
 </html>
