@@ -29,7 +29,6 @@ $graduation_year = $profile['graduation_year'] ?? '';
 $current_position = $profile['current_position'] ?? '';
 $company = $profile['company'] ?? '';
 $bio = $profile['bio'] ?? '';
-$profile_picture = $profile['profile_picture'] ?? '';
 
 $errors = [];
 
@@ -59,15 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Graduation year must be a 4-digit number.';
     }
 
-    // Handle File Upload
-    if (isset($_FILES['profile_picture']) && $_FILES['profile_picture']['error'] !== UPLOAD_ERR_NO_FILE) {
-        $uploadResult = uploadFile($_FILES['profile_picture'], ['jpg', 'jpeg', 'png', 'gif'], 5242880, '../assets/uploads/');
-        if ($uploadResult['success']) {
-            $profile_picture = $uploadResult['filename'];
-        } else {
-            $errors[] = $uploadResult['message'];
-        }
-    }
+
 
     if (empty($errors)) {
 
@@ -79,8 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     graduation_year = :graduation_year,
                     current_position = :current_position,
                     company = :company,
-                    bio = :bio,
-                    profile_picture = :profile_picture
+                    bio = :bio
                   WHERE user_id = :user_id";
 
         $stmt = $conn->prepare($query);
@@ -98,7 +88,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':current_position', $current_position);
         $stmt->bindParam(':company', $company);
         $stmt->bindParam(':bio', $bio);
-        $stmt->bindParam(':profile_picture', $profile_picture);
+
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
 
         if ($stmt->execute()) {
@@ -188,58 +178,7 @@ $csrf_token = generateCSRFToken();
             gap: 20px;
         }
 
-        .profile-picture-preview {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            overflow: hidden;
-            margin: 20px auto;
-            border: 4px solid #f0f0f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-        }
 
-        .profile-picture-preview img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .file-input-wrapper {
-            position: relative;
-            display: inline-block;
-            width: 100%;
-        }
-
-        .file-input-wrapper input[type="file"] {
-            position: absolute;
-            opacity: 0;
-            opacity: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .file-input-button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background: #f8f9fa;
-            border: 2px dashed #ccc;
-            border-radius: 5px;
-            text-align: center;
-            color: #666;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .file-input-button:hover {
-            border-color: #667eea;
-            background: #f0f1ff;
-            color: #667eea;
-        }
 
         @media(max-width: 768px) {
             .form-row {
@@ -299,30 +238,10 @@ $csrf_token = generateCSRFToken();
                 </div>
             <?php endif; ?>
 
-            <form method="post" action="edit_profile.php" enctype="multipart/form-data">
+            <form method="post" action="edit_profile.php">
                 <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
 
-                <!-- Profile Picture Section -->
-                <div class="form-section">
-                    <h3>Profile Picture</h3>
-                    <div class="profile-picture-preview">
-                        <?php if (!empty($profile_picture) && file_exists('../assets/uploads/' . $profile_picture)): ?>
-                            <img src="../assets/uploads/<?php echo htmlspecialchars($profile_picture); ?>"
-                                alt="Profile Picture">
-                        <?php else: ?>
-                            <!-- Initials fallback (if needed, or just default icon) -->
-                            <span style="font-size: 48px; font-weight: bold; color: #ccc;">
-                                <?php echo strtoupper(substr($first_name, 0, 1) . substr($last_name, 0, 1)); ?>
-                            </span>
-                        <?php endif; ?>
-                    </div>
-                    <div class="file-input-wrapper">
-                        <input type="file" name="profile_picture" id="profile_picture" accept="image/*">
-                        <label for="profile_picture" class="file-input-button">
-                            Change Profile Picture
-                        </label>
-                    </div>
-                </div>
+
 
                 <!-- Basic Info -->
                 <div class="form-section">

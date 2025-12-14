@@ -144,7 +144,7 @@ CREATE TABLE `profiles` (
   `user_id` int(11) DEFAULT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL,
-  `profile_picture` varchar(255) DEFAULT NULL,
+
   `bio` text DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `graduation_year` year(4) DEFAULT NULL,
@@ -159,8 +159,8 @@ CREATE TABLE `profiles` (
 -- Dumping data for table `profiles`
 --
 
-INSERT INTO `profiles` (`profile_id`, `user_id`, `first_name`, `last_name`, `profile_picture`, `bio`, `phone`, `graduation_year`, `major`, `current_position`, `company`, `location`, `linkedin_url`) VALUES
-(1, 1, 'Admin', 'User', NULL, 'System Administrator', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
+INSERT INTO `profiles` (`profile_id`, `user_id`, `first_name`, `last_name`, `bio`, `phone`, `graduation_year`, `major`, `current_position`, `company`, `location`, `linkedin_url`) VALUES
+(1, 1, 'Admin', 'User', 'System Administrator', NULL, NULL, NULL, NULL, NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 

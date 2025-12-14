@@ -15,7 +15,7 @@ $database = new Database();
 $conn = $database->getConnection();
 
 // Get user profile + account info
-$query = "SELECT p.*, u.email, u.registration_date
+$query = "SELECT p.user_id, p.first_name, p.last_name, p.major, p.graduation_year, p.current_position, p.company, p.bio, u.email, u.registration_date
           FROM profiles p
           INNER JOIN users u ON p.user_id = u.user_id
           WHERE p.user_id = :user_id";
@@ -53,7 +53,6 @@ if (!$profile) {
         'graduation_year' => '',
         'current_position' => '',
         'company' => '',
-        'profile_picture' => '',
         'bio' => '',
         'registration_date' => date('Y-m-d'),
     ];
@@ -96,27 +95,7 @@ if (!$profile) {
             position: relative;
         }
 
-        .profile-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 48px;
-            font-weight: bold;
-            color: #667eea;
-            border: 5px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-        }
 
-        .profile-avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
 
         .profile-info {
             margin-top: 70px;
@@ -295,20 +274,7 @@ if (!$profile) {
             <div class="profile-banner"></div>
             <div class="profile-main">
                 <div style="display:flex; gap:20px; align-items:center;">
-                    <div class="profile-avatar">
-                        <?php
-                        // Check if file exists and isn't empty
-                        if (!empty($profile['profile_picture']) && file_exists('../assets/uploads/' . $profile['profile_picture'])) {
-                            echo '<img src="../assets/uploads/' . htmlspecialchars($profile['profile_picture']) . '" alt="Profile Picture">';
-                        } else {
-                            // Fallback to initials
-                            $first = $profile['first_name'] ?? '?';
-                            $last = $profile['last_name'] ?? '?';
-                            $initials = strtoupper(substr($first, 0, 1) . substr($last, 0, 1));
-                            echo htmlspecialchars($initials);
-                        }
-                        ?>
-                    </div>
+
                     <div class="profile-info">
                         <div class="profile-name">
                             <?php echo htmlspecialchars(($profile['first_name'] ?? 'Unknown') . ' ' . ($profile['last_name'] ?? '')); ?>

@@ -191,57 +191,5 @@ function timeAgo($datetime)
 }
 
 // Upload file function 
-function uploadFile(
-    $file,
-    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'],
-    $maxSize =
-    5242880,
-    $uploadDir = 'assets/uploads/'
-) {
-    // Check if file was uploaded 
-    if ($file['error'] !== UPLOAD_ERR_OK) {
-        return ['success' => false, 'message' => 'File upload error'];
-    }
 
-    // Check file size (default 5MB) 
-    if ($file['size'] > $maxSize) {
-        return [
-            'success' => false,
-            'message' => 'File is too large. Maximum size is ' .
-                ($maxSize / 1048576) . 'MB'
-        ];
-    }
-
-    // Get file extension 
-    $fileExtension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-
-    // Check file type 
-    if (!in_array($fileExtension, $allowedTypes)) {
-        return [
-            'success' => false,
-            'message' => 'Invalid file type. Allowed: ' .
-                implode(', ', $allowedTypes)
-        ];
-    }
-
-    // Generate unique filename 
-    $newFilename = uniqid() . '_' . time() . '.' . $fileExtension;
-    $targetPath = $uploadDir . $newFilename;
-
-    // Create upload directory if it doesn't exist 
-    if (!file_exists($uploadDir)) {
-        mkdir($uploadDir, 0777, true);
-    }
-    // Move uploaded file 
-    if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-        return [
-            'success' => true,
-            'filename' => $newFilename,
-            'path' =>
-                $targetPath
-        ];
-    } else {
-        return ['success' => false, 'message' => 'Failed to move uploaded file'];
-    }
-}
 ?>
