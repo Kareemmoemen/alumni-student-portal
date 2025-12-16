@@ -7,20 +7,31 @@ require_once '../includes/functions.php';
 requireLogin();
 
 // Get current user info
-$user_id = getUserId();
+// Get current user info
+$logged_in_user_id = getUserId();
 $user_type = getUserType();
+
+// Determine which profile to view
+$view_user_id = isset($_GET['id']) ? (int) $_GET['id'] : $logged_in_user_id;
+
+// Basic validation
+if ($view_user_id <= 0) {
+    $view_user_id = $logged_in_user_id;
+}
+
+$is_own_profile = ($logged_in_user_id === $view_user_id);
 
 // Create DB connection
 $database = new Database();
 $conn = $database->getConnection();
 
 // Get user profile + account info
-$query = "SELECT p.user_id, p.first_name, p.last_name, p.major, p.graduation_year, p.current_position, p.company, p.bio, u.email, u.registration_date
+$query = "SELECT p.user_id, p.first_name, p.last_name, p.major, p.graduation_year, p.current_position, p.company, p.location, p.bio, u.email, u.registration_date
           FROM profiles p
           INNER JOIN users u ON p.user_id = u.user_id
           WHERE p.user_id = :user_id";
 $stmt = $conn->prepare($query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindParam(':user_id', $view_user_id, PDO::PARAM_INT);
 $stmt->execute();
 $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -28,7 +39,7 @@ $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 // Get skills
 $query = "SELECT * FROM skills WHERE user_id = :user_id ORDER BY skill_name";
 $stmt = $conn->prepare($query);
-$stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+$stmt->bindParam(':user_id', $view_user_id, PDO::PARAM_INT);
 $stmt->execute();
 $skills = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -239,33 +250,10 @@ if (!$profile) {
         <div class="loading-spinner"></div>
     </div>
 
-    <!-- Navbar (updated to responsive version) -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="../index.php" class="navbar-brand">Alumni Portal</a>
-
-            <!-- Mobile Menu Toggle -->
-            <button class="mobile-menu-toggle">☰</button>
-
-            <ul class="navbar-menu">
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="profile.php" class="active">Profile</a></li>
-                <li><a href="matching.php">Matching</a></li>
-                <li><a href="forum.php">Forum</a></li>
-                <li><a href="jobs.php">Jobs</a></li>
-                <li><a href="events.php">Events</a></li>
-                <li>
-                    <span class="badge badge-secondary">
-                        <?php echo ucfirst($user_type); ?>
-                    </span>
-                </li>
-                <li><a href="logout.php">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay"></div>
+    <?php
+    $current_page = 'profile.php';
+    include '../includes/navbar.php';
+    ?>
 
     <div class="profile-container">
 
@@ -277,16 +265,16 @@ if (!$profile) {
 
                     <div class="profile-info">
                         <div class="profile-name">
-                            <?php echo htmlspecialchars(($profile['first_name'] ?? 'Unknown') . ' ' . ($profile['last_name'] ?? '')); ?>
+                            <?php echo htmlspecialchars(ucwords(($profile['first_name'] ?? 'Unknown') . ' ' . ($profile['last_name'] ?? ''))); ?>
                         </div>
                         <div class="profile-title">
                             <?php
                             $titleParts = [];
                             if (!empty($profile['current_position'])) {
-                                $titleParts[] = $profile['current_position'];
+                                $titleParts[] = ucwords($profile['current_position']);
                             }
                             if (!empty($profile['company'])) {
-                                $titleParts[] = $profile['company'];
+                                $titleParts[] = ucwords($profile['company']);
                             }
                             echo htmlspecialchars(implode(' at ', $titleParts));
                             ?>
@@ -295,7 +283,7 @@ if (!$profile) {
                             <?php
                             $sub = [];
                             if (!empty($profile['major'])) {
-                                $sub[] = $profile['major'];
+                                $sub[] = ucwords($profile['major']);
                             }
 
                             if (!empty($profile['graduation_year'])) {
@@ -304,10 +292,12 @@ if (!$profile) {
                             echo htmlspecialchars(implode(' • ', $sub));
                             ?>
                         </div>
-                        <div class="profile-actions">
-                            <a href="edit_profile.php" class="btn btn-primary">Edit Profile</a>
-                            <a href="manage_skills.php" class="btn btn-outline">Manage Skills</a>
-                        </div>
+                        <?php if ($is_own_profile): ?>
+                            <div class="profile-actions">
+                                <a href="edit_profile.php" class="btn btn-primary">Edit Profile</a>
+                                <a href="manage_skills.php" class="btn btn-outline">Manage Skills</a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -340,7 +330,7 @@ if (!$profile) {
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Major</div>
-                    <div class="info-value"><?php echo htmlspecialchars($profile['major']); ?></div>
+                    <div class="info-value"><?php echo htmlspecialchars(ucwords($profile['major'])); ?></div>
                 </div>
 
                 <div class="info-item">
@@ -350,7 +340,13 @@ if (!$profile) {
                 <div class="info-item">
                     <div class="info-label">Current Role</div>
                     <div class="info-value">
-                        <?php echo htmlspecialchars(trim($profile['current_position'] . ' ' . $profile['company'])); ?>
+                        <?php echo htmlspecialchars(ucwords(trim($profile['current_position'] . ' ' . $profile['company']))); ?>
+                    </div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">
+                        <?php echo htmlspecialchars($profile['location'] ?? 'Not specified'); ?>
                     </div>
                 </div>
             </div>
@@ -374,8 +370,10 @@ if (!$profile) {
         <div class="info-section">
             <div class="section-title">
                 <span>Skills</span>
-                <a href="manage_skills.php"
-                    style="font-size:14px; color:var(--primary-color); text-decoration:none;">Add New +</a>
+                <?php if ($is_own_profile): ?>
+                    <a href="manage_skills.php"
+                        style="font-size:14px; color:var(--primary-color); text-decoration:none;">Add New +</a>
+                <?php endif; ?>
             </div>
             <div class="skills-grid">
                 <?php if (count($skills) > 0): ?>
@@ -391,7 +389,7 @@ if (!$profile) {
                         ?>
                         <span class="skill-badge <?php echo htmlspecialchars($badgeClass); ?>">
                             <span class="skill-level-icon"><?php echo $dots; ?></span>
-                            <?php echo htmlspecialchars($skill['skill_name']); ?>
+                            <?php echo htmlspecialchars(ucwords($skill['skill_name'])); ?>
                         </span>
                     <?php endforeach; ?>
                 <?php else: ?>

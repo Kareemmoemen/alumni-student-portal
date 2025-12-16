@@ -9,6 +9,12 @@ requireLogin();
 // Get current user id
 $user_id = getUserId();
 
+// Security: Check if 'id' param exists and ensure it matches logged in user
+if (isset($_GET['id']) && (int) $_GET['id'] !== $user_id) {
+    // User is trying to manage someone else's skills -> Block it
+    redirect('profile.php', 'You can only manage your own skills.', 'error');
+}
+
 // Create database connection
 $database = new Database();
 $conn = $database->getConnection();
@@ -102,6 +108,7 @@ function getSkillLevelClass(array $skill): string
 
     <!-- Main design system -->
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Page-specific styles -->
     <style>
@@ -331,29 +338,12 @@ function getSkillLevelClass(array $skill): string
         <div class="loading-spinner"></div>
     </div>
 
-    <!-- Navigation (responsive) -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="../index.php" class="navbar-brand">Alumni Portal</a>
+    <?php
+    $current_page = 'manage_skills.php';
+    include '../includes/navbar.php';
+    ?>
 
-            <!-- Mobile Menu Toggle -->
-            <button class="mobile-menu-toggle">☰</button>
 
-            <ul class="navbar-menu">
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="profile.php">Profile</a></li>
-                <li><a href="matching.php">Matching</a></li>
-                <li><a href="forum.php">Forum</a></li>
-                <li><a href="jobs.php">Jobs</a></li>
-                <li><a href="events.php">Events</a></li>
-                <li><a href="manage_skills.php" class="active">Skills</a></li>
-                <li><a href="logout.php">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay"></div>
 
     <div class="skills-container">
         <?php
@@ -430,7 +420,9 @@ function getSkillLevelClass(array $skill): string
                                     <input type="hidden" name="skill_id" value="<?php echo (int) $skill['skill_id']; ?>">
                                     <input type="hidden" name="csrf_token"
                                         value="<?php echo htmlspecialchars(generateCSRFToken()); ?>">
-                                    <button type="submit" class="btn btn-danger btn-icon">&times;</button>
+                                    <button type="submit" class="btn btn-danger btn-icon">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -438,7 +430,6 @@ function getSkillLevelClass(array $skill): string
                 </div>
             <?php else: ?>
                 <div class="empty-state">
-                    <div class="empty-state-icon">⭐</div>
                     <h3>No skills added yet</h3>
                     <p>Start by adding a few skills above to showcase your strengths.</p>
                 </div>

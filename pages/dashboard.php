@@ -7,13 +7,13 @@ require_once '../includes/functions.php';
 requireLogin();
 
 // Get user information
-$user_id    = getUserId();
-$user_type  = getUserType();
+$user_id = getUserId();
+$user_type = getUserType();
 $user_email = getUserEmail();
 
 // Create database connection
 $database = new Database();
-$conn     = $database->getConnection();
+$conn = $database->getConnection();
 
 // Get user profile information
 $query = "SELECT p.*, u.email, u.registration_date 
@@ -27,22 +27,22 @@ $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
 // Get platform statistics
 $query = "SELECT COUNT(*) as total FROM users WHERE status = 'active'";
-$stmt  = $conn->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->execute();
 $total_users = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $query = "SELECT COUNT(*) as total FROM users WHERE user_type = 'student' AND status = 'active'";
-$stmt  = $conn->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->execute();
 $total_students = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $query = "SELECT COUNT(*) as total FROM users WHERE user_type = 'alumni' AND status = 'active'";
-$stmt  = $conn->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->execute();
 $total_alumni = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
 $query = "SELECT COUNT(*) as total FROM mentorship_matches WHERE status IN ('active', 'pending')";
-$stmt  = $conn->prepare($query);
+$stmt = $conn->prepare($query);
 $stmt->execute();
 $total_matches = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
 
@@ -114,31 +114,37 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Alumni Portal</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
             background: #f5f7fa;
         }
+
         .dashboard-grid {
             display: grid;
             grid-template-columns: 2fr 1fr;
             gap: 20px;
             margin-top: 20px;
         }
+
         .main-content {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .sidebar {
             display: flex;
             flex-direction: column;
             gap: 20px;
         }
+
         .welcome-card {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -146,18 +152,22 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .welcome-card h2 {
             color: white;
             margin-bottom: 10px;
         }
+
         .welcome-card p {
             color: rgba(255, 255, 255, 0.9);
         }
+
         .stats-mini-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
             gap: 15px;
         }
+
         .stat-mini-card {
             background: white;
             padding: 20px;
@@ -165,25 +175,30 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             text-align: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
+
         .stat-mini-card h3 {
             font-size: 32px;
             color: #667eea;
             margin-bottom: 5px;
         }
+
         .stat-mini-card p {
             font-size: 14px;
             color: #666;
             margin: 0;
         }
+
         .activity-item {
             display: flex;
             gap: 15px;
             padding: 15px;
             border-bottom: 1px solid #f0f0f0;
         }
+
         .activity-item:last-child {
             border-bottom: none;
         }
+
         .activity-icon {
             width: 40px;
             height: 40px;
@@ -196,28 +211,34 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             font-size: 18px;
             flex-shrink: 0;
         }
+
         .activity-content {
             flex: 1;
         }
+
         .activity-content h4 {
             font-size: 16px;
             margin-bottom: 5px;
         }
+
         .activity-content p {
             font-size: 14px;
             color: #666;
             margin: 0;
         }
+
         .activity-meta {
             font-size: 12px;
             color: #999;
             margin-top: 5px;
         }
+
         .action-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 10px;
         }
+
         .action-card {
             padding: 20px;
             background: white;
@@ -226,21 +247,26 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             text-decoration: none;
             color: inherit;
             transition: all 0.3s ease;
-            border: 2px solid transparent;
+            border: 1px solid #e0e0e0;
         }
+
         .action-card:hover {
             border-color: #667eea;
             transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
         }
+
         .action-card .icon {
             font-size: 32px;
             margin-bottom: 10px;
         }
+
         .action-card h4 {
             font-size: 14px;
             margin: 0;
             color: #2c3e50;
         }
+
         .event-item {
             padding: 15px;
             border-left: 4px solid #667eea;
@@ -248,22 +274,27 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             border-radius: 5px;
             margin-bottom: 10px;
         }
+
         .event-item h4 {
             font-size: 16px;
             margin-bottom: 5px;
         }
+
         .event-meta {
             font-size: 13px;
             color: #666;
         }
+
         @media (max-width: 968px) {
             .dashboard-grid {
                 grid-template-columns: 1fr;
             }
+
             .action-grid {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+
         @media (max-width: 576px) {
             .stats-mini-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -271,33 +302,16 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
     </style>
 </head>
+
 <body>
 
     <!-- Skip link for keyboard users (PDF Step 5) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
-    <nav class="navbar">
-      <div class="navbar-container">
-        <a href="../index.php" class="navbar-brand">Alumni Portal</a>
-
-        <!-- Mobile Menu Toggle -->
-        <button class="mobile-menu-toggle">☰</button>
-
-        <ul class="navbar-menu">
-          <li><a href="dashboard.php" class="active">Dashboard</a></li>
-          <li><a href="profile.php">Profile</a></li>
-          <li><a href="matching.php">Matching</a></li>
-          <li><a href="forum.php">Forum</a></li>
-          <li><a href="jobs.php">Jobs</a></li>
-          <li><a href="events.php">Events</a></li>
-          <li><span class="badge badge-secondary"><?php echo ucfirst($user_type); ?></span></li>
-          <li><a href="logout.php">Logout</a></li>
-        </ul>
-      </div>
-    </nav>
-
-    <!-- Mobile Overlay -->
-    <div class="mobile-overlay"></div>
+    <?php
+    $current_page = 'dashboard.php';
+    include '../includes/navbar.php';
+    ?>
 
     <!-- Main content wrapper for accessibility -->
     <main id="main-content">
@@ -305,7 +319,7 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php
             $success = getSuccess();
             if ($success):
-            ?>
+                ?>
                 <div class="alert alert-success"><?php echo $success; ?></div>
             <?php endif; ?>
 
@@ -347,27 +361,27 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card-body">
                             <div class="action-grid">
                                 <a href="profile.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-user-circle"></i></div>
                                     <h4>My Profile</h4>
                                 </a>
                                 <a href="matching.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-handshake"></i></div>
                                     <h4>Find Mentors</h4>
                                 </a>
                                 <a href="forum.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-comments"></i></div>
                                     <h4>Forum</h4>
                                 </a>
                                 <a href="jobs.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-briefcase"></i></div>
                                     <h4>Job Board</h4>
                                 </a>
                                 <a href="events.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-calendar-alt"></i></div>
                                     <h4>Events</h4>
                                 </a>
                                 <a href="manage_skills.php" class="action-card">
-                                    <div class="icon"></div>
+                                    <div class="icon"><i class="fas fa-star"></i></div>
                                     <h4>Skills</h4>
                                 </a>
                             </div>
@@ -388,7 +402,8 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                             <h4><?php echo htmlspecialchars($post['title']); ?></h4>
                                             <p><?php echo substr(htmlspecialchars($post['content']), 0, 100); ?>...</p>
                                             <div class="activity-meta">
-                                                By <?php echo htmlspecialchars($post['first_name'] . ' ' . $post['last_name']); ?>
+                                                By
+                                                <?php echo htmlspecialchars($post['first_name'] . ' ' . $post['last_name']); ?>
                                                 • <?php echo timeAgo($post['created_at']); ?>
                                                 • <?php echo $post['reply_count']; ?> replies
                                             </div>
@@ -432,7 +447,8 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <div class="activity-item">
                                             <div class="activity-icon"></div>
                                             <div class="activity-content">
-                                                <h4><?php echo htmlspecialchars($mentor['first_name'] . ' ' . $mentor['last_name']); ?></h4>
+                                                <h4><?php echo htmlspecialchars($mentor['first_name'] . ' ' . $mentor['last_name']); ?>
+                                                </h4>
                                                 <p><?php echo htmlspecialchars($mentor['major']); ?></p>
                                                 <?php if (!empty($mentor['company'])): ?>
                                                     <div class="activity-meta">
@@ -465,7 +481,8 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <p>Active Job Posts</p>
                                     </div>
                                 </div>
-                                <a href="jobs.php?action=create" class="btn btn-primary btn-block" style="margin-top: 15px;">
+                                <a href="jobs.php?action=create" class="btn btn-primary btn-block"
+                                    style="margin-top: 15px;">
                                     Post a Job
                                 </a>
                             </div>
@@ -504,4 +521,5 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Include JavaScript at the very end -->
     <script src="../assets/js/main.js"></script>
 </body>
+
 </html>

@@ -383,6 +383,7 @@ select.form-control {
   font-weight: 700;
   color: var(--primary-color);
   text-decoration: none;
+  white-space: nowrap;
 }
 
 .navbar-brand:hover {
@@ -399,9 +400,11 @@ select.form-control {
 .navbar-menu a {
   color: var(--dark-text);
   font-weight: 500;
-  padding: 8px 16px;
-  border-radius: var(--radius-sm);
+  padding: 10px 20px;
+  border-radius: 8px;
   transition: all var(--transition-base);
+  background: transparent;
+  white-space: nowrap;
 }
 
 .navbar-menu a:hover {
@@ -412,6 +415,7 @@ select.form-control {
 .navbar-menu a.active {
   background: var(--secondary-color);
   color: var(--white);
+  box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
 }
 
 /* =============================================

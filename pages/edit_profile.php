@@ -26,8 +26,12 @@ $last_name = $profile['last_name'] ?? '';
 
 $major = $profile['major'] ?? '';
 $graduation_year = $profile['graduation_year'] ?? '';
+// Duplicate removal - empty string since we are deleting specific lines or just relying on context
+// Actually, better to just rewrite the blocks correctly.
+
 $current_position = $profile['current_position'] ?? '';
 $company = $profile['company'] ?? '';
+$location = $profile['location'] ?? '';
 $bio = $profile['bio'] ?? '';
 
 $errors = [];
@@ -47,6 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $graduation_year = sanitizeInput($_POST['graduation_year'] ?? '');
     $current_position = sanitizeInput($_POST['current_position'] ?? '');
     $company = sanitizeInput($_POST['company'] ?? '');
+    $location = sanitizeInput($_POST['location'] ?? '');
     $bio = sanitizeInput($_POST['bio'] ?? '');
 
     if ($first_name === '')
@@ -70,6 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     graduation_year = :graduation_year,
                     current_position = :current_position,
                     company = :company,
+                    location = :location,
                     bio = :bio
                   WHERE user_id = :user_id";
 
@@ -87,6 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt->bindParam(':current_position', $current_position);
         $stmt->bindParam(':company', $company);
+        $stmt->bindParam(':location', $location);
         $stmt->bindParam(':bio', $bio);
 
         $stmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
@@ -263,13 +270,10 @@ $csrf_token = generateCSRFToken();
                 <!-- Academic Section -->
                 <div class="form-section">
                     <h3>Academic & Professional</h3>
-                    <div class="form-row">
-
-                        <div class="form-group">
-                            <label for="major">Major</label>
-                            <input type="text" id="major" name="major" class="form-control"
-                                value="<?php echo htmlspecialchars($major); ?>">
-                        </div>
+                    <div class="form-group">
+                        <label for="major">Major</label>
+                        <input type="text" id="major" name="major" class="form-control"
+                            value="<?php echo htmlspecialchars($major); ?>">
                     </div>
 
                     <div class="form-row">
@@ -289,6 +293,12 @@ $csrf_token = generateCSRFToken();
                         <label for="company">Company</label>
                         <input type="text" id="company" name="company" class="form-control"
                             value="<?php echo htmlspecialchars($company); ?>">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" name="location" class="form-control"
+                            placeholder="e.g. New York, NY" value="<?php echo htmlspecialchars($location); ?>">
                     </div>
                 </div>
 

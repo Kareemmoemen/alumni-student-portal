@@ -1,18 +1,18 @@
 // Mobile Menu + Smooth Scroll + Basic Form Checks + Image Preview + Auto-hide Alerts
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const menuToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.navbar-menu');
     const overlay = document.querySelector('.mobile-overlay');
 
     if (menuToggle) {
-        menuToggle.addEventListener('click', function() {
+        menuToggle.addEventListener('click', function () {
             navMenu.classList.toggle('active');
             if (overlay) overlay.classList.toggle('active');
         });
     }
 
     if (overlay) {
-        overlay.addEventListener('click', function() {
+        overlay.addEventListener('click', function () {
             navMenu.classList.remove('active');
             overlay.classList.remove('active');
         });
@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Smooth Scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
@@ -35,7 +35,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 // Form Validation Enhancement
 document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function(e) {
+    form.addEventListener('submit', function (e) {
         const requiredInputs = form.querySelectorAll('[required]');
         let isValid = true;
 
@@ -55,22 +55,7 @@ document.querySelectorAll('form').forEach(form => {
     });
 });
 
-// Image Preview for File Upload
-document.querySelectorAll('input[type="file"]').forEach(input => {
-    input.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                const preview = document.querySelector('.profile-picture-preview img');
-                if (preview) {
-                    preview.src = event.target.result;
-                }
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-});
+
 
 // Auto-hide Alerts
 document.querySelectorAll('.alert').forEach(alert => {
@@ -84,7 +69,7 @@ document.querySelectorAll('.alert').forEach(alert => {
 
 // Loading overlay on form submit
 document.querySelectorAll('form').forEach(form => {
-    form.addEventListener('submit', function() {
+    form.addEventListener('submit', function () {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) overlay.classList.add('active');
     });
@@ -93,7 +78,7 @@ document.querySelectorAll('form').forEach(form => {
 
 // Real-time email validation + password strength + error helpers
 document.querySelectorAll('input[type="email"]').forEach(input => {
-    input.addEventListener('blur', function() {
+    input.addEventListener('blur', function () {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (this.value && !emailRegex.test(this.value)) {
             this.style.borderColor = 'var(--danger-color)';
@@ -108,7 +93,7 @@ document.querySelectorAll('input[type="email"]').forEach(input => {
 // Real-time Password Strength
 document.querySelectorAll('input[type="password"]').forEach(input => {
     if (input.name === 'password') {
-        input.addEventListener('input', function() {
+        input.addEventListener('input', function () {
             const strength = checkPasswordStrength(this.value);
             const indicator = this.parentElement.querySelector('.password-strength');
             if (indicator) {
