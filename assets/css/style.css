@@ -239,9 +239,11 @@ a:hover {
   line-height: 1.5;
 }
 
-.btn:hover {
+.btn:hover,
+a.btn:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
+  color: var(--white) !important;
 }
 
 .btn:active {
@@ -360,10 +362,18 @@ select.form-control {
 /* =============================================
  8. NAVIGATION BAR
  ============================================= */
+/* =============================================
+ 8. NAVIGATION BAR (Standardized)
+ ============================================= */
 .navbar {
-  background: var(--white);
+  background: #fff;
+  border-bottom: 1px solid #eef0f3;
   box-shadow: var(--shadow-sm);
-  padding: 15px 0;
+  /* Keeping specific shadow from original if preferred, or user's simple border? User had border. I'll combine or just use user's. User's CSS: background: #fff; border-bottom: 1px solid #eef0f3; */
+  /* User didn't specify position: sticky. I should probably keep it if it was there to avoid regression? 
+     The user said "Add/merge this". 
+     I will Replace the existing navbar section with the user's CSS + essential structural properties from before (like sticky) if compatible.
+  */
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -372,50 +382,113 @@ select.form-control {
 .navbar-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 var(--spacing-md);
+  padding: 14px 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  gap: 24px;
 }
 
 .navbar-brand {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  color: var(--primary-color);
+  font-size: 20px;
+  font-weight: 800;
+  color: #2c3e50;
   text-decoration: none;
-  white-space: nowrap;
+  line-height: 1.1;
+  /* slightly tighter for stacked text */
+  display: inline-block;
+  text-align: left;
 }
 
 .navbar-brand:hover {
   color: var(--secondary-color);
 }
 
+/* menu */
 .navbar-menu {
-  display: flex;
   list-style: none;
-  gap: var(--spacing-lg);
+  margin: 0;
+  padding: 0;
+  display: flex;
   align-items: center;
+  gap: 22px;
+  /* Standardized spacing */
+  flex-wrap: nowrap;
 }
 
+
+/* links */
 .navbar-menu a {
-  color: var(--dark-text);
-  font-weight: 500;
-  padding: 10px 20px;
-  border-radius: 8px;
-  transition: all var(--transition-base);
-  background: transparent;
+  text-decoration: none;
+  color: #2c3e50;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease;
   white-space: nowrap;
+  background: transparent;
+  /* Reset */
+  box-shadow: none;
+  /* Reset */
 }
 
 .navbar-menu a:hover {
-  background: var(--light-bg);
+  background: #f3f5f9;
   color: var(--secondary-color);
 }
 
 .navbar-menu a.active {
   background: var(--secondary-color);
-  color: var(--white);
+  /* Using theme variable */
+  color: #fff;
   box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+  /* Preserving nice shadow */
+}
+
+/* badge + logout keep same spacing always */
+.navbar-badge {
+  margin-left: auto;
+  /* Push badge and logout to the right */
+}
+
+.navbar-badge .badge {
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+}
+
+.navbar-logout a {
+  background: transparent !important;
+  /* Ensure logout doesn't get 'active' bg style if accidentally matched or just generally */
+  color: var(--danger-color);
+}
+
+.navbar-logout a:hover {
+  background: #fdf2f2;
+  color: var(--danger-dark);
+}
+
+/* responsive */
+@media (max-width: 900px) {
+  .navbar-container {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .navbar-menu {
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  .navbar-menu li {
+    width: 100%;
+  }
+
+  .navbar-menu a {
+    display: block;
+    width: 100%;
+  }
 }
 
 /* =============================================

@@ -120,6 +120,7 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Alumni Portal</title>
     <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/animations.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body {
@@ -308,9 +309,29 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Skip link for keyboard users (PDF Step 5) -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
+    <!-- Page Loader -->
+    <div id="pageLoader"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.3s ease;">
+        <div style="text-align: center;">
+            <div class="loading-spinner"
+                style="width: 60px; height: 60px; border: 6px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: rotate 1s linear infinite; margin: 0 auto 12px;">
+            </div>
+            <p style="color: #667eea; font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 300);
+        });
+    </script>
+
     <?php
     $current_page = 'dashboard.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
 
     <!-- Main content wrapper for accessibility -->
@@ -324,27 +345,32 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <?php endif; ?>
 
             <!-- Welcome Card -->
-            <div class="welcome-card">
-                <h2>Welcome back, <?php echo htmlspecialchars($profile['first_name']); ?>!</h2>
-                <p>Member since <?php echo formatDate($profile['registration_date']); ?></p>
+            <div class="welcome-card animate-fade-in gradient-bg-animated"
+                style="position: relative; overflow: hidden;">
+                <h2 class="animate-fade-in-up" style="color: white;">Welcome back,
+                    <?php echo htmlspecialchars($profile['first_name']); ?>!
+                </h2>
+                <p class="animate-fade-in-up delay-100" style="color: rgba(255,255,255,0.9);">Member since
+                    <?php echo formatDate($profile['registration_date']); ?>
+                </p>
             </div>
 
             <!-- Platform Stats -->
             <div class="stats-mini-grid" style="margin-top: 20px;">
-                <div class="stat-mini-card">
-                    <h3><?php echo $total_users; ?></h3>
+                <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in">
+                    <h3 class="counter text-gradient" data-target="<?php echo $total_users; ?>">0</h3>
                     <p>Total Members</p>
                 </div>
-                <div class="stat-mini-card">
-                    <h3><?php echo $total_students; ?></h3>
+                <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in">
+                    <h3 class="counter text-gradient" data-target="<?php echo $total_students; ?>">0</h3>
                     <p>Students</p>
                 </div>
-                <div class="stat-mini-card">
-                    <h3><?php echo $total_alumni; ?></h3>
+                <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in">
+                    <h3 class="counter text-gradient" data-target="<?php echo $total_alumni; ?>">0</h3>
                     <p>Alumni</p>
                 </div>
-                <div class="stat-mini-card">
-                    <h3><?php echo $total_matches; ?></h3>
+                <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in">
+                    <h3 class="counter text-gradient" data-target="<?php echo $total_matches; ?>">0</h3>
                     <p>Connections</p>
                 </div>
             </div>
@@ -360,28 +386,41 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="card-body">
                             <div class="action-grid">
-                                <a href="profile.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-user-circle"></i></div>
+                                <a href="profile.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-100">
+                                    <div class="icon animate-float"><i class="fas fa-user-circle"></i></div>
                                     <h4>My Profile</h4>
                                 </a>
-                                <a href="matching.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-handshake"></i></div>
+                                <a href="matching.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-200">
+                                    <div class="icon animate-float"><i class="fas fa-handshake"></i></div>
                                     <h4>Find Mentors</h4>
                                 </a>
-                                <a href="forum.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-comments"></i></div>
+                                <a href="forum.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-300">
+                                    <div class="icon animate-float"><i class="fas fa-comments"></i></div>
                                     <h4>Forum</h4>
                                 </a>
-                                <a href="jobs.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-briefcase"></i></div>
+                                <a href="jobs.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-400">
+                                    <div class="icon animate-float"><i class="fas fa-briefcase"></i></div>
                                     <h4>Job Board</h4>
                                 </a>
-                                <a href="events.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-calendar-alt"></i></div>
+                                <?php if ($user_type === 'alumni'): ?>
+                                    <a href="post_job.php"
+                                        class="action-card hover-lift ripple-effect animate-fade-in-up delay-450">
+                                        <div class="icon animate-float">➕</div>
+                                        <h4>Post a Job</h4>
+                                    </a>
+                                <?php endif; ?>
+                                <a href="events.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-500">
+                                    <div class="icon animate-float"><i class="fas fa-calendar-alt"></i></div>
                                     <h4>Events</h4>
                                 </a>
-                                <a href="manage_skills.php" class="action-card">
-                                    <div class="icon"><i class="fas fa-star"></i></div>
+                                <a href="manage_skills.php"
+                                    class="action-card hover-lift ripple-effect animate-fade-in-up delay-600">
+                                    <div class="icon animate-float"><i class="fas fa-star"></i></div>
                                     <h4>Skills</h4>
                                 </a>
                             </div>
@@ -429,8 +468,9 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <h3>Your Stats</h3>
                             </div>
                             <div class="card-body">
-                                <div class="stat-mini-card" style="margin-bottom: 15px;">
-                                    <h3><?php echo $pending_requests; ?></h3>
+                                <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in"
+                                    style="margin-bottom: 15px;">
+                                    <h3 class="counter text-gradient" data-target="<?php echo $pending_requests; ?>">0</h3>
                                     <p>Pending Requests</p>
                                 </div>
                                 <a href="matching.php" class="btn btn-primary btn-block">Find Mentors</a>
@@ -472,12 +512,14 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <div class="card-body">
                                 <div class="stats-mini-grid" style="grid-template-columns: 1fr;">
-                                    <div class="stat-mini-card" style="margin-bottom: 10px;">
-                                        <h3><?php echo $pending_requests; ?></h3>
+                                    <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in"
+                                        style="margin-bottom: 10px;">
+                                        <h3 class="counter text-gradient" data-target="<?php echo $pending_requests; ?>">0
+                                        </h3>
                                         <p>Mentorship Requests</p>
                                     </div>
-                                    <div class="stat-mini-card">
-                                        <h3><?php echo $my_jobs; ?></h3>
+                                    <div class="stat-mini-card scroll-reveal hover-scale animate-scale-in">
+                                        <h3 class="counter text-gradient" data-target="<?php echo $my_jobs; ?>">0</h3>
                                         <p>Active Job Posts</p>
                                     </div>
                                 </div>
@@ -520,6 +562,7 @@ $upcoming_events = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- Include JavaScript at the very end -->
     <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/animations.js"></script>
 </body>
 
 </html>

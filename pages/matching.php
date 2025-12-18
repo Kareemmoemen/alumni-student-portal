@@ -477,17 +477,38 @@ $csrf_token = generateCSRFToken();
 <body>
     <?php
     $current_page = 'matching.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
+
+    <!-- Page Loader -->
+    <div id="pageLoader"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.3s ease;">
+        <div style="text-align: center;">
+            <div class="loading-spinner"
+                style="width: 60px; height: 60px; border: 6px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: rotate 1s linear infinite; margin: 0 auto 12px;">
+            </div>
+            <p style="color: #667eea; font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 300);
+        });
+    </script>
 
     <div class="matching-container">
         <?php if ($success = getSuccess()): ?>
             <div class="alert alert-success"><?php echo $success; ?></div>
         <?php endif; ?>
 
-        <div class="page-header">
-            <h1><?php echo $user_type === 'student' ? 'Find Mentors' : 'Find Students'; ?></h1>
-            <p><?php echo $user_type === 'student' ? 'Connect with experienced alumni' : 'Share your expertise with students'; ?>
+        <div class="page-header glass-white animate-fade-in-up">
+            <h1 class="text-gradient"><?php echo $user_type === 'student' ? 'Find Mentors' : 'Find Students'; ?></h1>
+            <p class="animate-fade-in-up delay-100">
+                <?php echo $user_type === 'student' ? 'Connect with experienced alumni' : 'Share your expertise with students'; ?>
             </p>
         </div>
 
@@ -496,12 +517,12 @@ $csrf_token = generateCSRFToken();
                 <div class="filters-grid">
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="name">Name</label>
-                        <input type="text" id="name" name="name" class="form-control" placeholder="Search by name..."
-                            value="<?php echo htmlspecialchars($search_name); ?>">
+                        <input type="text" id="name" name="name" class="form-control input-focus-glow"
+                            placeholder="Search by name..." value="<?php echo htmlspecialchars($search_name); ?>">
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="major">Major</label>
-                        <select id="major" name="major" class="form-control">
+                        <select id="major" name="major" class="form-control input-focus-glow">
                             <option value="">All Majors</option>
                             <?php foreach ($all_majors as $major): ?>
                                 <option value="<?php echo htmlspecialchars($major['major']); ?>" <?php echo $search_major === $major['major'] ? 'selected' : ''; ?>>
@@ -512,7 +533,7 @@ $csrf_token = generateCSRFToken();
                     </div>
                     <div class="form-group" style="margin-bottom: 0;">
                         <label for="location">Location</label>
-                        <select id="location" name="location" class="form-control">
+                        <select id="location" name="location" class="form-control input-focus-glow">
                             <option value="">All Locations</option>
                             <?php foreach ($all_locations as $location): ?>
                                 <option value="<?php echo htmlspecialchars($location['location']); ?>" <?php echo $search_location === $location['location'] ? 'selected' : ''; ?>>
@@ -539,8 +560,11 @@ $csrf_token = generateCSRFToken();
                     $match_percentage = calculateMatchPercentage($my_profile, $match);
                     $connection_status = isset($connections[$match['user_id']]) ? $connections[$match['user_id']] : null;
                     ?>
-                    <div class="match-card">
-                        <div class="match-percentage"><?php echo $match_percentage; ?>% Match</div>
+                    <div class="match-card scroll-reveal hover-lift card-tilt-3d" style="transition: all 0.3s ease;">
+                        <div class="match-percentage animate-pulse">
+                            <span style="font-size: 18px; font-weight: 700;"><?php echo $match_percentage; ?>%</span><br>
+                            <span style="font-size: 10px; text-transform: uppercase; letter-spacing: 1px;">Match</span>
+                        </div>
                         <div class="match-header">
                             <div class="match-avatar">
                                 <?php echo strtoupper(substr($match['first_name'], 0, 1) . substr($match['last_name'], 0, 1)); ?>
@@ -583,8 +607,12 @@ $csrf_token = generateCSRFToken();
                                 <span
                                     class="status-badge status-<?php echo $connection_status; ?>"><?php echo ucfirst($connection_status); ?></span>
                             <?php elseif ($user_type === 'student'): ?>
-                                <button class="btn-request" onclick="sendRequest(<?php echo $match['user_id']; ?>, this)">
-                                    <i class="fas fa-paper-plane" style="margin-right:8px;"></i> Request Mentorship
+                                <button class="btn-request btn-modern ripple-effect hover-glow"
+                                    onclick="sendRequest(<?php echo $match['user_id']; ?>, this)">
+                                    <span style="display: flex; align-items: center; gap: 8px;">
+                                        <span>🤝</span>
+                                        <span>Request Mentorship</span>
+                                    </span>
                                 </button>
                             <?php endif; ?>
                             <a href="profile.php?id=<?php echo $match['user_id']; ?>" class="btn-view">
@@ -611,7 +639,7 @@ $csrf_token = generateCSRFToken();
             if (!confirm('Send mentorship request?')) return;
 
             btn.disabled = true;
-            btn.textContent = 'Sending...';
+            btn.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
 
             const csrfToken = document.getElementById('csrf_token').value;
 
@@ -623,16 +651,17 @@ $csrf_token = generateCSRFToken();
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        alert('Request sent successfully!');
-                        location.reload();
+                        showToast('Mentorship request sent successfully!', 'success');
+                        createConfetti();
+                        setTimeout(() => location.reload(), 1500);
                     } else {
-                        alert('Error: ' + data.message);
+                        showToast('Error: ' + data.message, 'error');
                         btn.disabled = false;
                         btn.textContent = 'Request Mentorship';
                     }
                 })
                 .catch(error => {
-                    alert('An error occurred');
+                    showToast('An error occurred', 'error');
                     btn.disabled = false;
                     btn.textContent = 'Request Mentorship';
                 });

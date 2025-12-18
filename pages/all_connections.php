@@ -171,7 +171,7 @@ $all_matches = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <?php
     $current_page = 'all_connections.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
 
     <div class="container">

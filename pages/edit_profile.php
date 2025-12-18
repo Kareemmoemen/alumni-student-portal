@@ -207,24 +207,10 @@ $csrf_token = generateCSRFToken();
     </div>
 
     <!-- 🔥 Navbar -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="../index.php" class="navbar-brand">Alumni Portal</a>
-
-            <button class="mobile-menu-toggle">☰</button>
-
-            <ul class="navbar-menu">
-                <li><a href="dashboard.php">Dashboard</a></li>
-                <li><a href="profile.php" class="active">Profile</a></li>
-                <li><a href="matching.php">Matching</a></li>
-                <li><a href="forum.php">Forum</a></li>
-                <li><a href="jobs.php">Jobs</a></li>
-                <li><a href="events.php">Events</a></li>
-                <li><span class="badge badge-secondary"><?php echo ucfirst(getUserType()); ?></span></li>
-                <li><a href="logout.php">Logout</a></li>
-            </ul>
-        </div>
-    </nav>
+    <?php
+    $current_page = 'profile.php';
+    require_once '../includes/navbar.php';
+    ?>
 
     <div class="mobile-overlay"></div>
 

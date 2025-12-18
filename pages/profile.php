@@ -132,14 +132,29 @@ if (!$profile) {
         }
 
         /* Custom button overrides for dark background */
-        .profile-actions .btn {
+        .profile-actions .btn-primary {
             background: white;
             color: #667eea;
             border: none;
+            font-weight: 700;
         }
 
-        .profile-actions .btn:hover {
-            background: #f0f0f0;
+        .profile-actions .btn-primary:hover {
+            background: #f8f9fa;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .profile-actions .btn-outline {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+        }
+
+        .profile-actions .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: white;
             transform: translateY(-2px);
         }
 
@@ -250,16 +265,38 @@ if (!$profile) {
         <div class="loading-spinner"></div>
     </div>
 
+    <!-- Page Loader -->
+    <div id="pageLoader"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.3s ease;">
+        <div style="text-align: center;">
+            <div class="loading-spinner"
+                style="width: 60px; height: 60px; border: 6px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: rotate 1s linear infinite; margin: 0 auto 12px;">
+            </div>
+            <p style="color: #667eea; font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 300);
+        });
+    </script>
+
     <?php
     $current_page = 'profile.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
 
     <div class="profile-container">
 
         <!-- Header card -->
         <div class="profile-header-card">
-            <div class="profile-banner"></div>
+            <div class="profile-banner"
+                style="background: linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 100%);">
+            </div>
             <div class="profile-main">
                 <div style="display:flex; gap:20px; align-items:center;">
 
@@ -309,11 +346,11 @@ if (!$profile) {
                 <span>Contact & Account</span>
             </div>
             <div class="info-grid">
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Email</div>
                     <div class="info-value"><?php echo htmlspecialchars($profile['email']); ?></div>
                 </div>
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Member Since</div>
                     <div class="info-value">
                         <?php echo function_exists('formatDate') ? formatDate($profile['registration_date']) : htmlspecialchars($profile['registration_date']); ?>
@@ -328,22 +365,22 @@ if (!$profile) {
                 <span>Academic & Professional</span>
             </div>
             <div class="info-grid">
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Major</div>
                     <div class="info-value"><?php echo htmlspecialchars(ucwords($profile['major'])); ?></div>
                 </div>
 
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Graduation Year</div>
                     <div class="info-value"><?php echo htmlspecialchars($profile['graduation_year']); ?></div>
                 </div>
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Current Role</div>
                     <div class="info-value">
                         <?php echo htmlspecialchars(ucwords(trim($profile['current_position'] . ' ' . $profile['company']))); ?>
                     </div>
                 </div>
-                <div class="info-item">
+                <div class="info-item animate-fade-in-left hover-lift">
                     <div class="info-label">Location</div>
                     <div class="info-value">
                         <?php echo htmlspecialchars($profile['location'] ?? 'Not specified'); ?>
@@ -387,7 +424,8 @@ if (!$profile) {
                             default => '●'
                         };
                         ?>
-                        <span class="skill-badge <?php echo htmlspecialchars($badgeClass); ?>">
+                        <span class="skill-badge <?php echo htmlspecialchars($badgeClass); ?> animate-scale-in hover-scale"
+                            style="animation-delay: 0.1s;">
                             <span class="skill-level-icon"><?php echo $dots; ?></span>
                             <?php echo htmlspecialchars(ucwords($skill['skill_name'])); ?>
                         </span>

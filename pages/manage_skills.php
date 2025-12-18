@@ -340,7 +340,7 @@ function getSkillLevelClass(array $skill): string
 
     <?php
     $current_page = 'manage_skills.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
 
 

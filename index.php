@@ -65,6 +65,7 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Alumni-Student Connection Platform</title>
     <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/animations.css">
     <style>
         /* Hero Section */
         .hero {
@@ -291,40 +292,74 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <!-- Skip Link -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
 
+    <!-- Page Loader -->
+    <div id="pageLoader"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.3s ease;">
+        <div style="text-align: center;">
+            <div class="loading-spinner"
+                style="width: 60px; height: 60px; border: 6px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: rotate 1s linear infinite; margin: 0 auto 12px;">
+            </div>
+            <p style="color: #667eea; font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 300);
+        });
+    </script>
+
     <!-- Loading Overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="loading-spinner"></div>
     </div>
 
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="navbar-container">
-            <a href="index.php" class="navbar-brand"> Alumni Portal</a>
-
-            <!-- Mobile Menu Toggle -->
-            <button class="mobile-menu-toggle">☰</button>
-
-            <ul class="navbar-menu">
-                <li><a href="pages/login.php">Login</a></li>
-                <li><a href="pages/register.php" class="btn btn-primary btn-sm">Get Started</a></li>
-            </ul>
-        </div>
-    </nav>
+    <?php require_once 'includes/navbar.php'; ?>
 
     <!-- Mobile Overlay -->
     <div class="mobile-overlay"></div>
 
     <main id="main-content">
         <!-- Hero Section -->
-        <section class="hero">
-            <div class="container">
-                <h1>Connect. Learn. Grow.</h1>
-                <p>Bridge the gap between students and alumni. Find mentors, explore opportunities, and build meaningful
+        <!-- Hero Section -->
+        <section class="hero" style="position: relative; overflow: hidden;">
+            <!-- Animated background particles -->
+            <div class="particles-background">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+            </div>
+
+            <div class="parallax" data-speed="0.3"
+                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1;">
+                <div
+                    style="position: absolute; top: 20%; left: 10%; width: 100px; height: 100px; background: white; border-radius: 50%; animation: float 6s ease-in-out infinite;">
+                </div>
+                <div
+                    style="position: absolute; top: 60%; right: 15%; width: 60px; height: 60px; background: white; border-radius: 50%; animation: float 4s ease-in-out infinite;">
+                </div>
+                <div
+                    style="position: absolute; bottom: 20%; left: 50%; width: 80px; height: 80px; background: white; border-radius: 50%; animation: float 5s ease-in-out infinite;">
+                </div>
+            </div>
+
+            <div class="container" style="position: relative; z-index: 2;">
+                <h1 class="animate-fade-in-up text-glow">Connect. Learn. Grow.</h1>
+                <p class="animate-fade-in-up delay-200">Bridge the gap between students and alumni. Find mentors,
+                    explore opportunities, and build meaningful
                     connections.</p>
-                <div class="hero-buttons">
-                    <a href="pages/register.php" class="btn btn-white btn-lg">Join Now</a>
-                    <a href="#features" class="btn btn-outline btn-lg" style="color: white; border-color: white;">Learn
-                        More</a>
+
+                <div class="hero-buttons animate-fade-in-up delay-300">
+                    <a href="pages/register.php" class="btn btn-white btn-lg btn-modern ripple-effect hover-lift">Join
+                        Now</a>
+                    <a href="#features" class="btn btn-outline btn-lg btn-modern ripple-effect"
+                        style="color: white; border-color: white;">Explore Features</a>
                 </div>
             </div>
         </section>
@@ -332,20 +367,20 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <!-- Statistics Section -->
         <section class="stats-section">
             <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number"><?php echo $total_users; ?></div>
+                <div class="stat-item scroll-reveal hover-lift">
+                    <div class="stat-number counter" data-target="<?php echo $total_users; ?>">0</div>
                     <div class="stat-label">Total Members</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number"><?php echo $total_students; ?></div>
+                <div class="stat-item scroll-reveal hover-lift">
+                    <div class="stat-number counter" data-target="<?php echo $total_students; ?>">0</div>
                     <div class="stat-label">Active Students</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number"><?php echo $total_alumni; ?></div>
+                <div class="stat-item scroll-reveal hover-lift">
+                    <div class="stat-number counter" data-target="<?php echo $total_alumni; ?>">0</div>
                     <div class="stat-label">Alumni Network</div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-number"><?php echo $total_connections; ?></div>
+                <div class="stat-item scroll-reveal hover-lift">
+                    <div class="stat-number counter" data-target="<?php echo $total_connections; ?>">0</div>
                     <div class="stat-label">Connections Made</div>
                 </div>
             </div>
@@ -355,34 +390,34 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <section class="features-section" id="features">
             <h2 class="section-title">What We Offer</h2>
             <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Mentorship Matching</h3>
                     <p>Connect students with experienced alumni based on shared interests, skills, and career goals.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Discussion Forum</h3>
                     <p>Ask questions, share experiences, and engage in meaningful conversations with the community.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Job Opportunities</h3>
                     <p>Discover internships and job openings posted by alumni and industry professionals.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Networking Events</h3>
                     <p>Attend workshops, seminars, and networking events to expand your professional network.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Career Resources</h3>
                     <p>Access career guidance, resume tips, and interview preparation from experienced professionals.
                     </p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon"></div>
+                <div class="feature-card scroll-reveal hover-lift hover-glow">
+                    <div class="feature-icon animate-bounce" style="font-size: 48px;"></div>
                     <h3>Skill Development</h3>
                     <p>Showcase your skills and learn from others' expertise to advance your career.</p>
                 </div>
@@ -451,6 +486,7 @@ $recent_jobs = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     <!-- Include JavaScript -->
     <script src="assets/js/main.js"></script>
+    <script src="assets/js/animations.js"></script>
 </body>
 
 </html>

@@ -311,8 +311,28 @@ $csrf_token = generateCSRFToken();
 <body>
     <?php
     $current_page = 'my_mentorships.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
+
+    <!-- Page Loader -->
+    <div id="pageLoader"
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); display: flex; align-items: center; justify-content: center; z-index: 99999; transition: opacity 0.3s ease;">
+        <div style="text-align: center;">
+            <div class="loading-spinner"
+                style="width: 60px; height: 60px; border: 6px solid #f0f0f0; border-top-color: #667eea; border-radius: 50%; animation: rotate 1s linear infinite; margin: 0 auto 12px;">
+            </div>
+            <p style="color: #667eea; font-weight: 600;">Loading...</p>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('load', function () {
+            const loader = document.getElementById('pageLoader');
+            if (!loader) return;
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 300);
+        });
+    </script>
 
     <div class="mentorships-container">
         <?php if ($success = getSuccess()): ?>
@@ -328,13 +348,13 @@ $csrf_token = generateCSRFToken();
         </div>
 
         <div class="tabs">
-            <button class="tab active" onclick="showTab('pending', this)">
+            <button class="tab active ripple-effect" onclick="showTab('pending', this)">
                 Pending (<?php echo count($pending); ?>)
             </button>
-            <button class="tab" onclick="showTab('active', this)">
+            <button class="tab ripple-effect" onclick="showTab('active', this)">
                 Active (<?php echo count($active); ?>)
             </button>
-            <button class="tab" onclick="showTab('past', this)">
+            <button class="tab ripple-effect" onclick="showTab('past', this)">
                 Past (<?php echo count($past); ?>)
             </button>
         </div>
@@ -343,7 +363,7 @@ $csrf_token = generateCSRFToken();
         <div id="pending" class="tab-content active">
             <?php if (count($pending) > 0): ?>
                 <?php foreach ($pending as $m): ?>
-                    <div class="mentorship-card">
+                    <div class="mentorship-card scroll-reveal hover-lift" style="border-left: 4px solid #667eea;">
                         <div class="mentorship-avatar">
                             <?php echo strtoupper(substr($m['first_name'], 0, 1) . substr($m['last_name'], 0, 1)); ?>
                         </div>
@@ -362,15 +382,25 @@ $csrf_token = generateCSRFToken();
                                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                     <input type="hidden" name="match_id" value="<?php echo $m['match_id']; ?>">
                                     <input type="hidden" name="action" value="accept">
-                                    <button type="submit" class="btn-accept"
-                                        onclick="return confirm('Accept this mentorship request?')">Accept</button>
+                                    <button type="submit" class="btn-accept btn-modern ripple-effect hover-glow"
+                                        onclick="return confirmAction('accept')">
+                                        <span style="display: flex; align-items: center; gap: 5px;">
+                                            <span>✓</span>
+                                            <span>Accept</span>
+                                        </span>
+                                    </button>
                                 </form>
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="csrf_token" value="<?php echo $csrf_token; ?>">
                                     <input type="hidden" name="match_id" value="<?php echo $m['match_id']; ?>">
                                     <input type="hidden" name="action" value="reject">
-                                    <button type="submit" class="btn-reject"
-                                        onclick="return confirm('Decline this request?')">Decline</button>
+                                    <button type="submit" class="btn-reject btn-modern ripple-effect hover-glow"
+                                        onclick="return confirmAction('reject')">
+                                        <span style="display: flex; align-items: center; gap: 5px;">
+                                            <span>✕</span>
+                                            <span>Decline</span>
+                                        </span>
+                                    </button>
                                 </form>
                             <?php else: ?>
                                 <span class="badge badge-warning">Waiting for Response</span>
@@ -397,7 +427,7 @@ $csrf_token = generateCSRFToken();
         <div id="active" class="tab-content">
             <?php if (count($active) > 0): ?>
                 <?php foreach ($active as $m): ?>
-                    <div class="mentorship-card">
+                    <div class="mentorship-card scroll-reveal hover-lift" style="border-left: 4px solid #27ae60;">
                         <div class="mentorship-avatar">
                             <?php echo strtoupper(substr($m['first_name'], 0, 1) . substr($m['last_name'], 0, 1)); ?>
                         </div>
@@ -492,6 +522,24 @@ $csrf_token = generateCSRFToken();
             // Show selected tab
             document.getElementById(tabName).classList.add('active');
             btn.classList.add('active');
+        }
+
+        function confirmAction(action) {
+            const message = action === 'accept'
+                ? 'Accept this mentorship request?'
+                : 'Decline this request?';
+
+            if (confirm(message)) {
+                // Check if we can access the button that triggered this. 
+                // In the inline onclick, 'this' refers to the button? No, it's a function call.
+                // We can use event.target or check if the code passes 'this'. 
+                // The guide snippet uses event.target.innerHTML
+                if (event && event.target) {
+                    event.target.innerHTML = '<div class="loading-dots"><span></span><span></span><span></span></div>';
+                }
+                return true;
+            }
+            return false;
         }
     </script>
     <script src="../assets/js/main.js"></script>

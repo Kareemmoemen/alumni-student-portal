@@ -20,7 +20,7 @@ $user_type = getUserType();
 <body>
     <?php
     $current_page = 'forum.php';
-    include '../includes/navbar.php';
+    require_once '../includes/navbar.php';
     ?>
 
     <div style="max-width: 1200px; margin: 40px auto; padding: 0 20px; text-align: center;">
